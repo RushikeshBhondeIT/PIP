@@ -3,14 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Entities.Migrations
 {
-    /// <inheritdoc />
-    public partial class Initial21 : Migration
+    public partial class Initial : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -52,20 +48,22 @@ namespace Entities.Migrations
             migrationBuilder.InsertData(
                 table: "Countries",
                 columns: new[] { "CountryId", "CountryName" },
-                values: new object[,]
-                {
-                    { new Guid("12e15727-d369-49a9-8b13-bc22e9362179"), "USA" },
-                    { new Guid("8f30bedc-47dd-4286-8950-73d8a68e5d41"), "India" }
-                });
+                values: new object[] { new Guid("12e15727-d369-49a9-8b13-bc22e9362179"), "USA" });
+
+            migrationBuilder.InsertData(
+                table: "Countries",
+                columns: new[] { "CountryId", "CountryName" },
+                values: new object[] { new Guid("8f30bedc-47dd-4286-8950-73d8a68e5d41"), "India" });
 
             migrationBuilder.InsertData(
                 table: "Employee",
                 columns: new[] { "EmployeeId", "Address", "CountryID", "CountryName", "DateOfBirth", "Email", "EmployeeName", "Gender", "ReceiveNewsLetters" },
-                values: new object[,]
-                {
-                    { new Guid("12e15727-d369-49a9-8b13-bc22e9362179"), "Nagpur", new Guid("12e15727-d369-49a9-8b13-bc22e9362179"), "India", new DateTime(1996, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), "dilip@gmail.com", "Dilip", "Male", true },
-                    { new Guid("8f30bedc-47dd-4286-8950-73d8a68e5d41"), "Pune", new Guid("8f30bedc-47dd-4286-8950-73d8a68e5d41"), "India", new DateTime(1996, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), "rushikesh@gmail.com", "Rushikesh", "Male", true }
-                });
+                values: new object[] { new Guid("12e15727-d369-49a9-8b13-bc22e9362179"), "Nagpur", new Guid("12e15727-d369-49a9-8b13-bc22e9362179"), "India", new DateTime(1996, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), "dilip@gmail.com", "Dilip", "Male", true });
+
+            migrationBuilder.InsertData(
+                table: "Employee",
+                columns: new[] { "EmployeeId", "Address", "CountryID", "CountryName", "DateOfBirth", "Email", "EmployeeName", "Gender", "ReceiveNewsLetters" },
+                values: new object[] { new Guid("8f30bedc-47dd-4286-8950-73d8a68e5d41"), "Pune", new Guid("8f30bedc-47dd-4286-8950-73d8a68e5d41"), "India", new DateTime(1996, 3, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), "rushikesh@gmail.com", "Rushikesh", "Male", true });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Employee_CountryID",
@@ -73,7 +71,6 @@ namespace Entities.Migrations
                 column: "CountryID");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
