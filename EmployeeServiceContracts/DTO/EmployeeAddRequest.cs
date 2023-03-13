@@ -1,20 +1,26 @@
 ﻿using EmployeeServiceContracts.DTO.Enums;
 using Entities;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
 namespace EmployeeServiceContracts.DTO
 {/// <summary>
 /// Acts as DTO for inserting the Employee
 /// </summary>
-    public class EmpoyeeAddRequest
+    public class EmployeeAddRequest
     {
+        [Required(ErrorMessage ="Employee Name cant be blank")]
         public string? EmployeeName { get; set; }
+        [Required(ErrorMessage = "Eamil cant be blank")]
         public string? Email { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public GenderOptions? Gender { get; set; }
+        public string? Gender { get; set; }
         public Guid? CountryID { get; set; }
         public string? Address { get; set; }
+        public string? CountryName { get; set; }
+        public bool ReceiveNewsLetters { get; set; }
+
 
         /// <summary>
         /// Convert the current object of
@@ -49,16 +55,14 @@ namespace EmployeeServiceContracts.DTO
                 EmployeeName = employee.EmployeeName,
                 Email = employee.Email,
                 DateOfBirth = employee.DateOfBirth,
-                Gender = employee.Gender,
                 CountryId = employee.CountryID,
+                Gender=employee.Gender,
                 Address = employee.Address,
-                CountryName = employee.EmployeeName,
-               // ReceiveNewsLetters = employee.ReceiveNewsLetters,
+                CountryName = employee.CountryName,
+                ReceiveNewsLetters = employee.ReceiveNewsLetters,
                 Age = (employee.DateOfBirth != null) ? Math.Round
                 ((DateTime.Now - employee.DateOfBirth.Value).TotalDays /
                 365.25) : null
-
-
             };
         }
     }

@@ -9,13 +9,16 @@ namespace EmployeeAPI.Controllers
     [ApiController]
     public class ServerInformationControllers : Controller
     {
-
+        /// <summary>
+        /// Returns a server time as DateTime.UtcNow
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("api/v1/GetServerTime")]
         public IActionResult GetServerTime()
         {
             try
             {
-                return Ok(new { servertime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture) });
+                return Ok(new { servertime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) });
             }
             catch (Exception ex)
             {
@@ -23,10 +26,14 @@ namespace EmployeeAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns a Day for given Date 
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
         [HttpGet("api/v1/GetDay")]
         public IActionResult GetDay(DateTime? dateTime)
         {
-
             if (dateTime != null)
             {
                 CultureInfo originalCulture = Thread.CurrentThread.CurrentCulture;

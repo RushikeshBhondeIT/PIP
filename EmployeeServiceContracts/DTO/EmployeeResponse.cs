@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EmployeeServiceContracts.DTO.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,6 +41,23 @@ namespace EmployeeServiceContracts.DTO
                 Address==employee.Address&&
                 Gender == employee.Gender &&
                 ReceiveNewsLetters == employee.ReceiveNewsLetters;
+        }
+
+        public UpdateEmployeeRequest ToEmployeeUpdateRequest()
+        {
+            return new UpdateEmployeeRequest()
+            {
+                EmployeeId = (Guid)EmployeeId,
+                EmployeeName = EmployeeName,
+                Email = Email,
+                DateOfBirth = DateOfBirth,
+                CountryID = CountryId,
+                Gender = Gender,
+                Address = Address,
+                CountryName = CountryName,
+                ReceiveNewsLetters = (bool)ReceiveNewsLetters,
+                Age = Age,
+            };
         }
 
         public override int GetHashCode()

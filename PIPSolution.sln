@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entiti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeServiceContracts", "EmployeeServiceContracts\EmployeeServiceContracts.csproj", "{B7C94BAE-05B3-4271-A575-2352971BA731}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeServices", "EmployeeServices\EmployeeServices.csproj", "{FF6D5853-36D1-4357-B055-A7E88C779C93}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeServicesRepo", "EmployeeServices\EmployeeServicesRepo.csproj", "{FF6D5853-36D1-4357-B055-A7E88C779C93}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmployeeAPI", "WebApplication1\EmployeeAPI.csproj", "{6C03FC0B-DD3F-42AE-9DC9-389EE14707E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeapYearAPI", "LeapYearAPI\LeapYearAPI.csproj", "{B9CE93B7-74A0-498D-BF7B-BCA13C47FF12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeapYearAPI", "LeapYearAPI\LeapYearAPI.csproj", "{B9CE93B7-74A0-498D-BF7B-BCA13C47FF12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
