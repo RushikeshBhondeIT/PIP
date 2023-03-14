@@ -1,11 +1,12 @@
-﻿using EmployeeServiceContracts.DTO.Enums;
+﻿using EmployeeServiceContracts.DTO;
+using EmployeeServiceContracts.DTO.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EmployeeServiceContracts.DTO
+namespace EmployeeServiceContracts
 {
     /// <summary>
     /// Represents business logic for manupulation person entity
@@ -43,6 +44,10 @@ namespace EmployeeServiceContracts.DTO
         public EmployeeResponse UpdateEmployee(UpdateEmployeeRequest? updateEmployeeRequest);
 
         public bool DeleteEmployee(Guid? id);
+
+        public string GetServerTime();
+
+        public string GetDay(DateTime? date);
 
     }
 }

@@ -1,14 +1,20 @@
-﻿using EmployeeServiceContracts;
+﻿using EmployeeAPI.Models;
+using EmployeeServiceContracts;
 using Microsoft.AspNetCore.Mvc;
-using StackExchange.Profiling.Internal;
-using System.Globalization;
-using Umbraco.Core;
+
 
 namespace EmployeeAPI.Controllers
 {
     [ApiController]
     public class ServerInformationControllers : Controller
     {
+        private readonly IEmployeeService _employeeService;
+        //constructor
+        public ServerInformationControllers(IEmployeeService employeeService)
+        {
+            _employeeService = employeeService;
+        }
+        //}
         /// <summary>
         /// Returns a server time as DateTime.UtcNow
         /// </summary>
@@ -18,11 +24,11 @@ namespace EmployeeAPI.Controllers
         {
             try
             {
-                return Ok(new { servertime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) });
+                return Ok(_employeeService.GetServerTime());
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message);  
             }
         }
 
@@ -32,19 +38,17 @@ namespace EmployeeAPI.Controllers
         /// <param name="dateTime"></param>
         /// <returns></returns>
         [HttpGet("api/v1/GetDay")]
-        public IActionResult GetDay(DateTime? dateTime)
+        public string GetDay( DateTime? dateTime)
         {
-            if (dateTime != null)
+            try
             {
-                CultureInfo originalCulture = Thread.CurrentThread.CurrentCulture;
-                Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
-                DateTime? dateValue = dateTime;
-                // Display the DayOfWeek string representation
-                string? day = dateValue?.DayOfWeek.ToString();
-                Thread.CurrentThread.CurrentCulture = originalCulture;
-                return Ok($"Provided Date Day Is = " + day);
+             return _employeeService.GetDay(dateTime);
+               
             }
-            else { return BadRequest("DateTime not provided"); }
+            catch (Exception ex)
+            {
+                return ex.Message.ToString();
+            }
 
         }
     }

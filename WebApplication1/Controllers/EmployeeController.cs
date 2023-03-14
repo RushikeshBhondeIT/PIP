@@ -3,9 +3,6 @@ using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using ServiceStack.Web;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace EmployeeAPI.Controllers
 {
@@ -15,12 +12,13 @@ namespace EmployeeAPI.Controllers
         //private fields
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
-
+        private  readonly ILogger _logger;
         //constructor
-        public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService)
+        public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService, ILogger logger)
         {
             _employeeService = employeeService;
             _countriesService = countriesService;
+            _logger = logger;
         }
 
         //Url: persons/index
@@ -75,35 +73,7 @@ namespace EmployeeAPI.Controllers
             return sortedPersons;
         }
 
-        //public List<EmployeeResponse> AddEmployeee()
-        //{
-        //    var employees = _employeeService.GetAllEmployee();
-        //    return employees;
-        //}
-
-
-
-
-
-
-
-        //Executes when the user clicks on "Create Person" hyperlink (while opening the create view)
-        //Url: persons/create
-        //[HttpGet("api/v1/Employee/create")]
-        //public IActionResult Create()
-        //{
-        //    List<CountryResponse> countries = _countriesService.GetAllCountries();
-        //    ViewBag.Countries = countries.Select(temp =>
-        //      new SelectListItem() { Text = temp.CountryName, Value = temp.CountyId.ToString() }
-        //    );
-
-        //    //new SelectListItem() { Text="Harsha", Value="1" }
-        //    //<option value="1">Harsha</option>
-        //    return View();
-        //}
-
-
-        //Url: persons/create
+     
         [HttpPost("api/v1/Employee/Create")]
         public EmployeeResponse Create(EmployeeAddRequest employeeAddRequest)
         {
@@ -116,34 +86,12 @@ namespace EmployeeAPI.Controllers
                 var error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 //return error;
             }
-            //call the service method
+           
             EmployeeResponse employeeResponse =  _employeeService.AddEmployee(employeeAddRequest);
 
-            //navigate to Index() action method (it makes another get request to "persons/index"
             return employeeResponse;
         }
 
-       
-        //[HttpGet("api/v1/Employee/Edit")] //Eg: /persons/edit/1
-        //public IActionResult Edit(Guid emploeeId)
-        //{
-        //    EmployeeResponse? employeeResponse = _employeeService.GetEmployeeById(emploeeId);
-        //    if (employeeResponse == null)
-        //    {
-        //        return BadRequest("Id is not valid");
-        //    }
-        //    EmployeeResponse empResponse= new EmployeeResponse();
-        //    UpdateEmployeeRequest employeeUpdateRequest = empResponse.ToEmployeeUpdateRequest();
-
-        //    List<CountryResponse> countries = _countriesService.GetAllCountries();
-        //    var countrieslist = countries.Select(temp =>
-        //    new SelectListItem() { Text = temp.CountryName, Value = temp.CountyId.ToString() });
-
-        //    return (IActionResult)employeeUpdateRequest;
-        //}
-
-
-        
         [HttpPost("api/v1/Employee/Edit")]
         public UpdateEmployeeRequest Edit(UpdateEmployeeRequest employeeUpdateRequest)
         {
@@ -171,17 +119,6 @@ namespace EmployeeAPI.Controllers
             }
         }
 
-
-        //[HttpGet]
-        //[Route("[action]/{personID}")]
-        //public IActionResult Delete(Guid? employeeId)
-        //{
-        //    EmployeeResponse? employeeResponse = _employeeService.GetEmployeeById(employeeId);
-        //    if (employeeResponse == null)
-        //        return BadRequest();
-
-        //    return (IActionResult)employeeResponse;
-        //}
 
         [HttpPost("api/v1/Employee/Delete")]
         

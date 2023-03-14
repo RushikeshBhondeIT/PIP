@@ -1,4 +1,7 @@
 ﻿
+using EmployeeAPI.Models;
+using EmployeeServicesRepo.Heplers;
+using LeapYearAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -7,30 +10,41 @@ namespace LeapYearAPI.Controllers
 
     public class LeapYearController : Controller
     {
+      
         /// <summary>
         /// Api to get the Leap Year of Given range of date
         /// </summary>
         /// <param name="startDate">Starting Date </param>
         /// <param name="endDate"> Ending Date</param>
         /// <returns></returns>
-        [HttpGet("api/v1/LeapYears")]
-        public IActionResult GetLeapYears(DateTime startDate, DateTime endDate)
+        [HttpPost("api/v1/LeapYears")]
+        public IActionResult GetLeapYears(LeapYearRange? leapYearRange)
         {
+            List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
             try
             {
-                List<string> years = new List<string>();
-                for (int year = startDate.Year; year <= endDate.Year; year++)
+                if (leapYearRange.StartYear == 0 && leapYearRange.EndYear == 0)
                 {
-                    if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
+                   return Ok( "Range is not provided Properly");
+                }
+                else
+                {
+                    ValidationHelper.ModelValidation(leapYearRange);
+
+                    for (int year = leapYearRange.StartYear; year <= leapYearRange.EndYear; year++)
                     {
-                        years.Add(year.ToString());
+                        if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
+                        {
+                            yearsList.Add(new LeapYearResponse { LeapYear = year });
+                        }
                     }
                 }
-                return Ok(years.ToList());
+
+                return Ok(yearsList);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
         /// <summary>
@@ -41,12 +55,11 @@ namespace LeapYearAPI.Controllers
         /// <returns></returns>
 
         [HttpGet("api/v1/LeapYearsDay")]
-        public IActionResult GetLeapYearsDay(DateTime startDate, DateTime endDate)
+        public List<LeapYearDayResponse> GetLeapYearsDay(DateTime startDate, DateTime endDate)
         {
             try
             {
-                List<KeyValuePair<string, string>> leapYearWithDay = new List<KeyValuePair<string, string>>();
-
+                List<LeapYearDayResponse> leapYearWithDay = new List<LeapYearDayResponse>();
                 for (int year = startDate.Year; year <= endDate.Year; year++)
                 {
                     if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
@@ -55,14 +68,14 @@ namespace LeapYearAPI.Controllers
                         var month = startDate.Month;
                         DateTime DateToGetDay = new DateTime(year, month, day);// Parameterized constructor
                         var leapyearDay = GetdayAccordingLeapYear(DateToGetDay);
-                        leapYearWithDay.Add(new KeyValuePair<string, string>(leapyearDay.ToString(), year.ToString()));
+                        leapYearWithDay.Add(new LeapYearDayResponse() { Day = leapyearDay, Year = year });
                     }
                 }
-                return Ok(leapYearWithDay.ToList());
+                return leapYearWithDay;
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                throw new Exception(ex.Message);
             }
         }
 
@@ -76,6 +89,7 @@ namespace LeapYearAPI.Controllers
         {
             try
             {
+
                 string strurltest = string.Format($"https://localhost:7115/api/v1/GetDay?dateTime={dateTime}");
 
                 WebRequest requestObject = WebRequest.Create(strurltest);

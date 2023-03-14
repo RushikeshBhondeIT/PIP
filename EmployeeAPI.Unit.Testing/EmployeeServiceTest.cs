@@ -1,4 +1,5 @@
-﻿using EmployeeServiceContracts;
+﻿using Castle.Core.Logging;
+using EmployeeServiceContracts;
 using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts.DTO.Enums;
 using EmployeeServicesRepo;
@@ -15,6 +16,7 @@ namespace EmployeeAPI.Unit.Testing
     {
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
+        private readonly ILogger _logger;
         private readonly ITestOutputHelper _outputHelper;
         public Guid CountryID { get; private set; }
 

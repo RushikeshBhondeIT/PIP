@@ -10,10 +10,6 @@ namespace EmployeeServicesRepo
     {
         private readonly ApplicationDbContext _db;
 
-        public CountriesService()
-        {
-        }
-
         public CountriesService( ApplicationDbContext employeeDbContext)
         {
             _db = employeeDbContext;

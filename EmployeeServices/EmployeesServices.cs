@@ -3,7 +3,9 @@ using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts.DTO.Enums;
 using EmployeeServicesRepo.Heplers;
 using Entities;
-
+using Microsoft.Extensions.Logging;
+using System;
+using System.Globalization;
 
 namespace EmployeeServicesRepo
 {
@@ -11,11 +13,16 @@ namespace EmployeeServicesRepo
     {
         private readonly ApplicationDbContext _db;
         private readonly ICountriesService _countries;
+     
+        private ApplicationDbContext dbContext;
+        private ICountriesService? countriesService;
+   
 
         public EmployeesServices(ApplicationDbContext employeeDbContext, ICountriesService countriesService)
         {
             _db = employeeDbContext;
             _countries = countriesService;
+           
         }
 
         private EmployeeResponse ConvertEmployeeToEmployeeResponse(Employee employee)
@@ -25,7 +32,18 @@ namespace EmployeeServicesRepo
                 ?.CountryName;
             return employeeResponse;
         }
-
+        public string GetServerTime()
+        {
+            try
+            {
+                var servertime = (new { servertime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) });
+                return servertime.ToString();
+            }
+            catch (Exception ex)
+            {
+                return "Something Went wrong";
+            }
+        }
         public EmployeeResponse AddEmployee(EmployeeAddRequest? empoyeeAddRequest)
         {
             if (empoyeeAddRequest == null) { throw new ArgumentNullException(); }
@@ -166,6 +184,32 @@ namespace EmployeeServicesRepo
             _db.Employees.Remove(_db.Employees.First(temp => temp.EmployeeId == id));
             _db.SaveChanges();
             return true;
+        }
+
+        public string GetDay(DateTime? dateTime)
+        {
+            try
+            {
+                if (dateTime != null)
+                {
+                    CultureInfo originalCulture = Thread.CurrentThread.CurrentCulture;
+                    Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+                    DateTime? dateValue = dateTime;
+                    // Display the DayOfWeek string representation
+                    string? day = dateValue?.DayOfWeek.ToString();
+                    Thread.CurrentThread.CurrentCulture = originalCulture;
+                   
+                    return day;
+                }
+                else
+                {
+                    return "DateTime is not provided Properly";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentNullException(ex.Message);
+            }
         }
     }
 }

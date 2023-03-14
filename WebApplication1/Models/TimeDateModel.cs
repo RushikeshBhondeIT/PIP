@@ -2,6 +2,7 @@
 {
     public class TimeDateModel
     {
-        public DateTime? dateTime { get; set; }
+        public DateTime? ServerTime { get; set; }
+      
     }
 }

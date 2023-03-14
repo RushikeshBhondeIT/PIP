@@ -4,10 +4,17 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Drawing;
 using EmployeeServiceContracts;
 using EmployeeServicesRepo;
-using EmployeeServiceContracts.DTO;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Logging
+builder.Host.ConfigureLogging(logging =>
+{
+    logging.ClearProviders();
+    logging.AddConsole();
+    logging.AddDebug();
+    logging.AddEventLog();  
+});
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -32,7 +39,14 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
+
+//app.Logger.LogDebug("Debug-message");
+//app.Logger.LogInformation("information-message"); 
+//app.Logger.LogWarning("warning-message");
+//app.Logger.LogError("error-message");
+//app.Logger.LogCritical("Debug-message");
 
 app.UseHttpsRedirection();
 
