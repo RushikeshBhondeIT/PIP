@@ -6,8 +6,6 @@ using EmployeeServicesRepo;
 using Entities;
 using EntityFrameworkCoreMock;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Owin.BuilderProperties;
-using System.Collections.Generic;
 using Xunit.Abstractions;
 
 namespace EmployeeAPI.Unit.Testing

@@ -1,14 +1,15 @@
 ﻿using Entities.Enum;
+using Entities.IdentityEntites;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Entities
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public virtual DbSet<Employee> Employees { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
@@ -55,13 +56,13 @@ namespace Entities
             {
                 EmployeeId = Guid.Parse("8f30bedc-47dd-4286-8950-73d8a68e5d41"),
                 EmployeeName = "Rushikesh",
-                Address="Pune",
-                CountryID= Guid.Parse("8f30bedc-47dd-4286-8950-73d8a68e5d41"),
-                Email="rushikesh@gmail.com",
-                DateOfBirth= new DateTime(1996,03,13),
-                CountryName="India",
-                Gender=GenderEnum.Male.ToString(),
-                ReceiveNewsLetters=true
+                Address = "Pune",
+                CountryID = Guid.Parse("8f30bedc-47dd-4286-8950-73d8a68e5d41"),
+                Email = "rushikesh@gmail.com",
+                DateOfBirth = new DateTime(1996, 03, 13),
+                CountryName = "India",
+                Gender = GenderEnum.Male.ToString(),
+                ReceiveNewsLetters = true
             },
            new Employee()
            {
@@ -71,11 +72,21 @@ namespace Entities
                CountryID = Guid.Parse("12e15727-d369-49a9-8b13-bc22e9362179"),
                Email = "dilip@gmail.com",
                DateOfBirth = new DateTime(1996, 03, 13),
-               CountryName="India",
+               CountryName = "India",
                Gender = Enum.GenderEnum.Male.ToString(),
                ReceiveNewsLetters = true
            });
 
+
+            this.SeedRoles(modelBuilder);
+        }
+        private  void SeedRoles(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<IdentityRole>().HasData(
+              new IdentityRole() { Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
+              new IdentityRole() { Name = "User", ConcurrencyStamp = "2", NormalizedName = "User" },
+              new IdentityRole() { Name = "HR", ConcurrencyStamp = "3", NormalizedName = "HR" }
+              );
         }
     }
 }
