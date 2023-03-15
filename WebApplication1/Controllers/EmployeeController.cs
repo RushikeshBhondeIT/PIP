@@ -12,13 +12,12 @@ namespace EmployeeAPI.Controllers
         //private fields
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
-        private  readonly ILogger _logger;
+      
         //constructor
-        public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService, ILogger logger)
+        public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService)
         {
             _employeeService = employeeService;
             _countriesService = countriesService;
-            _logger = logger;
         }
 
         //Url: persons/index
