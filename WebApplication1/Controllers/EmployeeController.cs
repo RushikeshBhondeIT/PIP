@@ -8,7 +8,7 @@ using EmployeeAPI.Models;
 
 namespace EmployeeAPI.Controllers
 {
-    [Authorize(Roles = "HR")]
+    [Authorize(Roles = "HR,Admin")]
     [ApiController]
     [System.Web.Http.RoutePrefix("api/v1/Employee/")]
     public class EmployeeController : Controller
