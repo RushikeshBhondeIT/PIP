@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmployeeAPI.Controllers
 {
     [ApiController]
+    [System.Web.Http.RoutePrefix("api/v1/")]
     public class ServerInformationControllers : Controller
     {
         private readonly IEmployeeService _employeeService;
@@ -19,16 +20,17 @@ namespace EmployeeAPI.Controllers
         /// Returns a server time as DateTime.UtcNow
         /// </summary>
         /// <returns></returns>
-        [HttpGet("api/v1/GetServerTime")]
+        [HttpGet("GetServerTime")]
         public IActionResult GetServerTime()
         {
             try
             {
-                return Ok(_employeeService.GetServerTime());
+               var serverTime= _employeeService.GetServerTime();
+               return Ok(serverTime);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);  
+                return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"{ex.Message}" });
             }
         }
 
@@ -37,19 +39,18 @@ namespace EmployeeAPI.Controllers
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        [HttpGet("api/v1/GetDay")]
-        public string GetDay( DateTime? dateTime)
+        [HttpGet("GetDay")]
+        public IActionResult GetDay(DateTime? dateTime)
         {
             try
             {
-             return _employeeService.GetDay(dateTime);
-               
+                var day = _employeeService.GetDay(dateTime);
+                return Ok( new Response { Status = "Success", Message = $"Given Date Day Is {day}" });
             }
             catch (Exception ex)
             {
-                return ex.Message.ToString();
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = $"{ex.Message}" });
             }
-
         }
     }
 }

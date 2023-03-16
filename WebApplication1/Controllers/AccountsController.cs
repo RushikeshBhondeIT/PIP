@@ -10,11 +10,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+
 using Umbraco.Core;
 
 namespace EmployeeAPI.Controllers
 {
     [ApiController]
+    [System.Web.Http.RoutePrefix("api/v1/")]
     public class AccountsController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -30,13 +32,13 @@ namespace EmployeeAPI.Controllers
             _emailService = emailService;
         }
 
-        [HttpGet("api/v1/Register")]
+        [HttpGet("Register")]
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpPost("api/v1/RegisterAdmin")]
+        [HttpPost("RegisterAdmin")]
         public async Task<IActionResult> Index([FromBody] RegisterUser registerDTO, string role)
         {
             if (ModelState.IsValid == false)
@@ -84,7 +86,7 @@ namespace EmployeeAPI.Controllers
             //Assign role
         }
 
-        [HttpGet("api/v1/ConfirmEmail")]
+        [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string token, string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -100,14 +102,9 @@ namespace EmployeeAPI.Controllers
                 }
             }
             return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "This Doesnot  exist ! " });
-
-            //var message = new MessageForEmail(new string[]
-            //{"chetnasatghare97@gmail.com" }, "TEST", "<h1>Subscribe to my channel!</h1>");
-            //_emailService.SendEmailToVerify(message);
-            //return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = "Email Sent Successfully " });
         }
 
-        [HttpPost("api/v1/LogIn")]
+        [HttpPost("LogIn")]
         public async Task<IActionResult> Login([FromBody] LogIn loginModel)
         {
             //checking the user ...

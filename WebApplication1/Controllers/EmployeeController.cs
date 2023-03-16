@@ -4,17 +4,19 @@ using EmployeeServiceContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using EmployeeAPI.Models;
 
 namespace EmployeeAPI.Controllers
 {
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = "HR")]
     [ApiController]
+    [System.Web.Http.RoutePrefix("api/v1/Employee/")]
     public class EmployeeController : Controller
     {
         //private fields
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
-      
+
         //constructor
         public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService)
         {
@@ -23,11 +25,12 @@ namespace EmployeeAPI.Controllers
         }
 
         //Url: persons/index
-        [HttpGet("api/v1/Employee/Index")]
+        [HttpGet("Index")]
         public IActionResult Index(string searchBy, string? searchString, string sortBy = nameof(EmployeeResponse.EmployeeName), SortOrderOption sortOrder = SortOrderOption.ASC)
         {
-            //Search
-            var serchFields = new Dictionary<string, string>() { 
+            try
+            { //Search
+                var serchFields = new Dictionary<string, string>() {
             { nameof(EmployeeResponse.EmployeeName), "Employee Name" },
             { nameof(EmployeeResponse.Email), "Email" },
             { nameof(EmployeeResponse.DateOfBirth), "Date of Birth" },
@@ -36,101 +39,135 @@ namespace EmployeeAPI.Controllers
             { nameof(EmployeeResponse.Address), "Address" }
           };
 
-            List<EmployeeResponse> persons = _employeeService.GetFilteredEmployee(searchBy, searchString);
-            ViewBag.CurrentSearchBy = searchBy;
-            ViewBag.CurrentSearchString = searchString;
+                List<EmployeeResponse> persons = _employeeService.GetFilteredEmployee(searchBy, searchString);
+                ViewBag.CurrentSearchBy = searchBy;
+                ViewBag.CurrentSearchString = searchString;
 
-            //Sort
-            List<EmployeeResponse> sortedPersons =  _employeeService.GetSoretedEmployee(persons, sortBy, sortOrder);
-            return (IActionResult)sortedPersons.ToList();
+                //Sort
+                List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(persons, sortBy, sortOrder);
+                return (IActionResult)sortedPersons.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message =ex.Message });
+            }
         }
 
-        [HttpGet("api/v1/Employee/GetAllCountries")]
+        [HttpGet("GetAllCountries")]
         public List<CountryResponse> GetAllCountries()
         {
-          var countries=_countriesService.GetAllCountries();
-            return countries;
+            try
+            {
+                var countries = _countriesService.GetAllCountries();
+                return countries;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+
         }
 
-        [HttpPost("api/v1/Employee/GetFilteredEmployee")]
+        [HttpPost("GetFilteredEmployee")]
         public List<EmployeeResponse> GetFilteredEmployee(string searchBy, string? searchString)
         {
-           List < EmployeeResponse > employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
-            return employee;
+            try
+            {
+                List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
+                return employee;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+
         }
 
-        [HttpPost("api/v1/Employee/GetAllEmployees")]
+        [HttpPost("GetAllEmployees")]
         public List<EmployeeResponse> GetAllEmployees()
         {
-            var employees = _employeeService.GetAllEmployee().ToList();
-            return employees;
+            try
+            {
+                var employees = _employeeService.GetAllEmployee().ToList();
+                return employees;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+
         }
 
-        [HttpPost("api/v1/Employee/GetSortedEmployee")]
+        [HttpPost("GetSortedEmployee")]
         public List<EmployeeResponse> GetSortedEmployee(string searchBy, string? searchString, string sortBy = nameof(EmployeeResponse.EmployeeName), SortOrderOption sortOrder = SortOrderOption.ASC)
         {
-            List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
-            List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(employee, sortBy, sortOrder);
-            return sortedPersons;
+            try
+            {
+                List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
+                List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(employee, sortBy, sortOrder);
+                return sortedPersons;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
-     
-        [HttpPost("api/v1/Employee/Create")]
+
+        [HttpPost("Create")]
         public EmployeeResponse Create(EmployeeAddRequest employeeAddRequest)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                List<CountryResponse> countries = _countriesService.GetAllCountries();
-                var countrylist = countries.Select(temp =>
-                new SelectListItem() { Text = temp.CountryName, Value = temp.CountyId.ToString() });
+                if (!ModelState.IsValid)
+                {
+                    List<CountryResponse> countries = _countriesService.GetAllCountries();
+                    var countrylist = countries.Select(temp =>
+                    new SelectListItem() { Text = temp.CountryName, Value = temp.CountyId.ToString() });
 
-                var error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                //return error;
+                    var error = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    //return error;
+                }
+                EmployeeResponse employeeResponse = _employeeService.AddEmployee(employeeAddRequest);
+                return employeeResponse;
             }
-           
-            EmployeeResponse employeeResponse =  _employeeService.AddEmployee(employeeAddRequest);
-
-            return employeeResponse;
+            catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
-        [HttpPost("api/v1/Employee/Edit")]
+        [HttpPost("Edit")]
         public UpdateEmployeeRequest Edit(UpdateEmployeeRequest employeeUpdateRequest)
         {
-            EmployeeResponse? employeeResponse = _employeeService.GetEmployeeById(employeeUpdateRequest.EmployeeId);
-
-            if (employeeResponse == null)
+            try
             {
-                BadRequest(employeeUpdateRequest);
-            }
+                EmployeeResponse? employeeResponse = _employeeService.GetEmployeeById(employeeUpdateRequest.EmployeeId);
 
-            if (ModelState.IsValid)
-            {
-                EmployeeResponse updatedEmployee = _employeeService.UpdateEmployee(employeeUpdateRequest);
-                return updatedEmployee.ToEmployeeUpdateRequest();
-            }
-            else
-            {
-                List<CountryResponse> countries = _countriesService.GetAllCountries();
-               var Countries = countries.Select(temp =>
-                new SelectListItem() { Text = temp.CountryName, Value = temp.CountyId.ToString() });
+                if (employeeResponse == null)
+                {
+                    BadRequest(employeeUpdateRequest);
+                }
 
-                ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                EmployeeResponse empResponse = new EmployeeResponse();
-                return empResponse.ToEmployeeUpdateRequest();
+                if (ModelState.IsValid)
+                {
+                    EmployeeResponse updatedEmployee = _employeeService.UpdateEmployee(employeeUpdateRequest);
+                    return updatedEmployee.ToEmployeeUpdateRequest();
+                }
+                else
+                {
+                    List<CountryResponse> countries = _countriesService.GetAllCountries();
+                    var Countries = countries.Select(temp =>
+                     new SelectListItem() { Text = temp.CountryName, Value = temp.CountyId.ToString() });
+
+                    ViewBag.Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    EmployeeResponse empResponse = new EmployeeResponse();
+                    return empResponse.ToEmployeeUpdateRequest();
+                }
             }
+            catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
 
-        [HttpPost("api/v1/Employee/Delete")]
-        
+        [HttpPost("Delete")]
+
         public bool Delete(UpdateEmployeeRequest UpdateResult)
         {
-            EmployeeResponse? pemployeeResponse = _employeeService.GetEmployeeById(UpdateResult.EmployeeId);
-            if (pemployeeResponse == null)
-                return false;
+            try
+            {
+                EmployeeResponse? pemployeeResponse = _employeeService.GetEmployeeById(UpdateResult.EmployeeId);
+                if (pemployeeResponse == null)
+                    return false;
 
-            var result=_employeeService.DeleteEmployee(UpdateResult.EmployeeId);
-            return result;
+                var result = _employeeService.DeleteEmployee(UpdateResult.EmployeeId);
+                return result;
+            }catch (Exception ex) { throw new Exception(ex.Message); }
         }
     }
 }

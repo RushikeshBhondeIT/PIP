@@ -3,6 +3,7 @@ using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts.DTO.Enums;
 using EmployeeServicesRepo.Heplers;
 using Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
@@ -25,13 +26,6 @@ namespace EmployeeServicesRepo
            
         }
 
-        private EmployeeResponse ConvertEmployeeToEmployeeResponse(Employee employee)
-        {
-            EmployeeResponse employeeResponse = employee.ToEmployeeResponse();
-            employeeResponse.CountryName = _countries.GetCountryByCountyId(employee.CountryID)
-                ?.CountryName;
-            return employeeResponse;
-        }
         public string GetServerTime()
         {
             try
@@ -41,149 +35,209 @@ namespace EmployeeServicesRepo
             }
             catch (Exception ex)
             {
-                return "Something Went wrong";
+                throw new Exception(ex.Message);
             }
         }
         public EmployeeResponse AddEmployee(EmployeeAddRequest? empoyeeAddRequest)
         {
-            if (empoyeeAddRequest == null) { throw new ArgumentNullException(); }
-            ValidationHelper.ModelValidation(empoyeeAddRequest);
-            Employee employee = empoyeeAddRequest.ToEmployee();
-            employee.EmployeeId = Guid.NewGuid();
-            _db.Employees.Add(employee);
-            _db.SaveChanges();
-            //NOTICE
-            return (employee.ToEmployeeResponse());
+            try
+            {
+                if (empoyeeAddRequest == null) { throw new ArgumentNullException(); }
+                ValidationHelper.ModelValidation(empoyeeAddRequest);
+                Employee employee = empoyeeAddRequest.ToEmployee();
+                employee.EmployeeId = Guid.NewGuid();
+                _db.Employees.Add(employee);
+                _db.SaveChanges();
+                _db.Dispose();
+                //NOTICE
+                return (employee.ToEmployeeResponse());
+            }
+            catch(Exception ex) 
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                _db.Dispose();  
+            }
         }
 
         public List<EmployeeResponse> GetAllEmployee()
         {
-            return _db.Employees.ToList()
+            try
+            {
+                return _db.Employees.ToList()
                 .Select(s => s.ToEmployeeResponse()).ToList();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                _db.Dispose();
+            }
+            
         }
 
         public EmployeeResponse? GetEmployeeById(Guid? employeeId)
         {
-            if (employeeId == null) { return null; }
-            Employee? employee = _db.Employees.FirstOrDefault(temp => temp.EmployeeId == employeeId);
-            if (employee == null)
+            try
             {
-                return null;
+                if (employeeId == null) { return null; }
+                Employee? employee = _db.Employees.FirstOrDefault(temp => temp.EmployeeId == employeeId);
+                if (employee == null)
+                {
+                    return null;
+                }
+                return employee.ToEmployeeResponse();
             }
-            return employee.ToEmployeeResponse();
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally { _db.Dispose(); }
+          
         }
 
         List<EmployeeResponse> IEmployeeService.GetFilteredEmployee(string serchBy, string? serchString)
         {
-            List<EmployeeResponse> allEmployee = GetAllEmployee();
-            List<EmployeeResponse> matchingEmployee = allEmployee;
-            if (!string.IsNullOrWhiteSpace(serchBy) && !string.IsNullOrEmpty(serchString))
+            try
             {
-
-                switch (serchBy)
+                List<EmployeeResponse> allEmployee = GetAllEmployee();
+                List<EmployeeResponse> matchingEmployee = allEmployee;
+                if (!string.IsNullOrWhiteSpace(serchBy) && !string.IsNullOrEmpty(serchString))
                 {
-                    case nameof(Employee.EmployeeName):
-                        matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.EmployeeName) ? temp.EmployeeName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        break;
-                    //case nameof(Employee.Email):
-                    //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Email) ? temp.Email.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                    //    break;
-                    //case nameof(Employee.Gender):
-                    //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Gender.ToString()) ? temp.Gender.ToString().Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                    //    break;
-                    //case nameof(Employee.CountryID):
-                    //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.CountryName) ? temp.CountryName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                    //    break;
-                    default:
-                        matchingEmployee = allEmployee;
-                        break;
+
+                    switch (serchBy)
+                    {
+                        case nameof(Employee.EmployeeName):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.EmployeeName) ? temp.EmployeeName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
+                        //case nameof(Employee.Email):
+                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Email) ? temp.Email.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                        //    break;
+                        //case nameof(Employee.Gender):
+                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Gender.ToString()) ? temp.Gender.ToString().Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                        //    break;
+                        //case nameof(Employee.CountryID):
+                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.CountryName) ? temp.CountryName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                        //    break;
+                        default:
+                            matchingEmployee = allEmployee;
+                            break;
+                    }
+
                 }
+                return matchingEmployee;
 
             }
-            return matchingEmployee;
+            catch (Exception ex) { throw new Exception(ex.Message); }
+            finally { _db.Dispose(); }
         }
 
         public List<EmployeeResponse> GetSoretedEmployee(List<EmployeeResponse> employees, string sortBy, SortOrderOption options)
         {
-            if (string.IsNullOrEmpty(sortBy))
+            try
             {
-                return employees;
+                if (string.IsNullOrEmpty(sortBy))
+                {
+                    return employees;
+                }
+                List<EmployeeResponse> sortedEmployeeS = (sortBy, options)
+                    switch
+                {
+                    (nameof(EmployeeResponse.EmployeeName), SortOrderOption.ASC) =>
+                    employees.OrderBy(temp => temp.EmployeeName, StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.EmployeeName), SortOrderOption.DSC) =>
+                  employees.OrderByDescending(temp => temp.EmployeeName, StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.Email), SortOrderOption.ASC) =>
+                  employees.OrderBy(temp => temp.Email, StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.Email), SortOrderOption.DSC) =>
+                   employees.OrderByDescending(temp => temp.Email, StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.Gender), SortOrderOption.ASC) =>
+                   employees.OrderBy(temp => temp.Gender?.ToString(), StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.Gender), SortOrderOption.DSC) =>
+                   employees.OrderByDescending(temp => temp.Gender?.ToString(), StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.CountryName), SortOrderOption.ASC) =>
+                  employees.OrderBy(temp => temp.CountryName, StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    (nameof(EmployeeResponse.CountryName), SortOrderOption.DSC) =>
+                   employees.OrderByDescending(temp => temp.CountryName, StringComparer.OrdinalIgnoreCase).ToList(),
+
+                    _ => employees
+
+                };
+
+                return sortedEmployeeS;
             }
-            List<EmployeeResponse> sortedEmployeeS = (sortBy, options)
-                switch
+            catch
             {
-                (nameof(EmployeeResponse.EmployeeName), SortOrderOption.ASC) =>
-                employees.OrderBy(temp => temp.EmployeeName, StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.EmployeeName), SortOrderOption.DSC) =>
-              employees.OrderByDescending(temp => temp.EmployeeName, StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.Email), SortOrderOption.ASC) =>
-              employees.OrderBy(temp => temp.Email, StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.Email), SortOrderOption.DSC) =>
-               employees.OrderByDescending(temp => temp.Email, StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.Gender), SortOrderOption.ASC) =>
-               employees.OrderBy(temp => temp.Gender.ToString(), StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.Gender), SortOrderOption.DSC) =>
-               employees.OrderByDescending(temp => temp.Gender.ToString(), StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.CountryName), SortOrderOption.ASC) =>
-              employees.OrderBy(temp => temp.CountryName, StringComparer.OrdinalIgnoreCase).ToList(),
-
-                (nameof(EmployeeResponse.CountryName), SortOrderOption.DSC) =>
-               employees.OrderByDescending(temp => temp.CountryName, StringComparer.OrdinalIgnoreCase).ToList(),
-
-                _ => employees
-
-            };
-
-            return sortedEmployeeS;
+                return new List<EmployeeResponse>();
+            }
+            
         }
 
         public EmployeeResponse UpdateEmployee(UpdateEmployeeRequest? updateEmployeeRequest)
         {
-            if (updateEmployeeRequest == null)
+            try
             {
-                throw new ArgumentNullException(nameof(Employee));
-            }
-            //validation
-            ValidationHelper.ModelValidation(updateEmployeeRequest);
-            //matching employee
-            Employee? matchingEmployee = _db.Employees.FirstOrDefault(temp => temp.EmployeeId == updateEmployeeRequest.EmployeeId);
-            if (matchingEmployee == null)
-            {
-                throw new ArgumentException("Given person id does not exist");
-            }
+                if (updateEmployeeRequest == null)
+                {
+                    throw new ArgumentNullException(nameof(Employee));
+                }
+                //validation
+                ValidationHelper.ModelValidation(updateEmployeeRequest);
+                //matching employee
+                Employee? matchingEmployee = _db.Employees.FirstOrDefault(temp => temp.EmployeeId == updateEmployeeRequest.EmployeeId);
+                if (matchingEmployee == null)
+                {
+                    throw new ArgumentException("Given person id does not exist");
+                }
 
-            //update details
-            matchingEmployee.EmployeeName = updateEmployeeRequest.EmployeeName;
-            matchingEmployee.Email = updateEmployeeRequest.Email;
-            matchingEmployee.DateOfBirth = updateEmployeeRequest.DateOfBirth;
-            matchingEmployee.CountryID = updateEmployeeRequest.CountryID;
-            matchingEmployee.Address = updateEmployeeRequest.Address;
-            matchingEmployee.ReceiveNewsLetters = updateEmployeeRequest.ReceiveNewsLetters;
-            _db.SaveChanges();
+                //update details
+                matchingEmployee.EmployeeName = updateEmployeeRequest.EmployeeName;
+                matchingEmployee.Email = updateEmployeeRequest.Email;
+                matchingEmployee.DateOfBirth = updateEmployeeRequest.DateOfBirth;
+                matchingEmployee.CountryID = updateEmployeeRequest.CountryID;
+                matchingEmployee.Address = updateEmployeeRequest.Address;
+                matchingEmployee.ReceiveNewsLetters = updateEmployeeRequest.ReceiveNewsLetters;
+                _db.SaveChanges();
 
-            return matchingEmployee.ToEmployeeResponse();
+                return matchingEmployee.ToEmployeeResponse();
+            }
+            catch { return new EmployeeResponse(); }
+            finally { _db.Dispose(); }
+            
         }
 
         public bool DeleteEmployee(Guid? id)
         {
-            if (id == null)
+            try
             {
-                throw new ArgumentNullException(nameof(id));
+                if (id == null)
+                {
+                    throw new ArgumentNullException(nameof(id));
+                }
+                Employee? employee = _db.Employees.FirstOrDefault(temp => temp.EmployeeId == id);
+                if (employee == null)
+                {
+                    return false;
+                }
+                _db.Employees.Remove(_db.Employees.First(temp => temp.EmployeeId == id));
+                _db.SaveChanges();
+                return true;
+
             }
-            Employee? employee = _db.Employees.FirstOrDefault(temp => temp.EmployeeId == id);
-            if (employee == null)
-            {
-                return false;
-            }
-            _db.Employees.Remove(_db.Employees.First(temp => temp.EmployeeId == id));
-            _db.SaveChanges();
-            return true;
+            catch { return false; }
+            finally { _db.Dispose(); }
+           
         }
 
         public string GetDay(DateTime? dateTime)
@@ -198,7 +252,6 @@ namespace EmployeeServicesRepo
                     // Display the DayOfWeek string representation
                     string? day = dateValue?.DayOfWeek.ToString();
                     Thread.CurrentThread.CurrentCulture = originalCulture;
-                   
                     return day;
                 }
                 else
