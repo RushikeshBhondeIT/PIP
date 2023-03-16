@@ -3,9 +3,11 @@ using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeAPI.Controllers
 {
+    [Authorize(Roles ="Admin")]
     [ApiController]
     public class EmployeeController : Controller
     {

@@ -24,8 +24,4 @@
     <ProjectReference Include="..\Entities\Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\Authentication\SignIn\" />
-  </ItemGroup>
-
 </Project>
