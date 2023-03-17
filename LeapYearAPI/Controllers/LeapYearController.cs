@@ -16,6 +16,11 @@ namespace LeapYearAPI.Controllers
         {
             _configuration = configuration;
         }
+
+        public LeapYearController()
+        {
+        }
+
         /// <summary>
         /// Api to get the Leap Year of Given range of date
         /// </summary>

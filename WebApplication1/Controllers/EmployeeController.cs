@@ -8,7 +8,7 @@ using EmployeeAPI.Models;
 
 namespace EmployeeAPI.Controllers
 {
-    [Authorize(Roles = "HR")]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [System.Web.Http.RoutePrefix("api/v1/Employee/")]
     public class EmployeeController : Controller
@@ -24,7 +24,7 @@ namespace EmployeeAPI.Controllers
             _countriesService = countriesService;
         }
 
-        //Url: persons/index
+        //Url: employee/index
         [HttpGet("Index")]
         public IActionResult Index(string searchBy, string? searchString, string sortBy = nameof(EmployeeResponse.EmployeeName), SortOrderOption sortOrder = SortOrderOption.ASC)
         {
