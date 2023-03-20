@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeAPI.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "HR")]
     [ApiController]
     [System.Web.Http.RoutePrefix("api/v1/")]
     public class ServerInformationControllers : Controller
@@ -23,7 +23,6 @@ namespace EmployeeAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetServerTime")]
-        [AllowAnonymous]
         public IActionResult GetServerTime()
         {
             try

@@ -17,9 +17,9 @@ namespace LeapYearAPI.Controllers
             _configuration = configuration;
         }
 
-        public LeapYearController()
-        {
-        }
+        //public LeapYearController()
+        //{
+        //}
 
         /// <summary>
         /// Api to get the Leap Year of Given range of date
@@ -33,7 +33,7 @@ namespace LeapYearAPI.Controllers
             List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
             try
             {
-                if (leapYearRange.StartYear == 0 && leapYearRange.EndYear == 0)
+                if (leapYearRange.StartYear <= 0 && leapYearRange.EndYear <= 0)
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = "Please Enter Valid Range like ex.(2000 and 2023)"});
                 }
