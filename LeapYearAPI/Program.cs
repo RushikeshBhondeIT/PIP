@@ -1,3 +1,7 @@
+using EmployeeServiceContracts;
+using EmployeeServicesRepo;
+using LeapYearAPI.LeapYearRepository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureLogging(logging =>
@@ -8,7 +12,7 @@ builder.Host.ConfigureLogging(logging =>
     logging.AddEventLog();
 });
 // Add services to the container.
-
+builder.Services.AddScoped<ILeapYearRepository, LeapYearRepository>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

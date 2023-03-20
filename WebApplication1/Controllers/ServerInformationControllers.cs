@@ -1,12 +1,14 @@
 ﻿using EmployeeAPI.Models;
 using EmployeeServiceContracts;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Web.Http;
+using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 
 namespace EmployeeAPI.Controllers
 {
     [ApiController]
-    [System.Web.Http.RoutePrefix("api/v1/")]
+    [RoutePrefix("api/v1/")]
+    [Authorize(Roles ="Admin,HR")]
     public class ServerInformationControllers : Controller
     {
         private readonly IEmployeeService _employeeService;

@@ -40,8 +40,7 @@ namespace EmployeeServicesRepo
         }
         public EmployeeResponse AddEmployee(EmployeeAddRequest? empoyeeAddRequest)
         {
-            try
-            {
+           
                 if (empoyeeAddRequest == null) { throw new ArgumentNullException(); }
                 ValidationHelper.ModelValidation(empoyeeAddRequest);
                 Employee employee = empoyeeAddRequest.ToEmployee();
@@ -51,15 +50,6 @@ namespace EmployeeServicesRepo
                 _db.Dispose();
                 //NOTICE
                 return (employee.ToEmployeeResponse());
-            }
-            catch(Exception ex) 
-            {
-                throw new Exception(ex.Message);
-            }
-            finally
-            {
-                _db.Dispose();  
-            }
         }
 
         public List<EmployeeResponse> GetAllEmployee()
@@ -96,7 +86,6 @@ namespace EmployeeServicesRepo
             {
                 throw new Exception(ex.Message);
             }
-            finally { _db.Dispose(); }
           
         }
 
@@ -232,11 +221,11 @@ namespace EmployeeServicesRepo
                 }
                 _db.Employees.Remove(_db.Employees.First(temp => temp.EmployeeId == id));
                 _db.SaveChanges();
+                _db.Dispose();
                 return true;
 
             }
             catch { return false; }
-            finally { _db.Dispose(); }
            
         }
 

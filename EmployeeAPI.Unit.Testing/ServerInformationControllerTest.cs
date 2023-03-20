@@ -47,12 +47,10 @@ namespace EmployeeAPI.Unit.Testing
         public void Cant_GetDay_IfDateNotProvides()
         {
             DateTime? DateToGetDay = null; 
-            //Assert.Throws<ArgumentNullException>(() =>
-            //{
+           
                 var ApiResponse = _employeeService.GetDay(DateToGetDay);
                 var result = ApiResponse;
                 Assert.Equal("DateTime is not provided Properly",result);
-           // });
         }
         
     }

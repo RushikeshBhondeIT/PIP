@@ -1,21 +1,26 @@
 ﻿using EmployeeServiceContracts.DTO.Enums;
 using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
 using EmployeeAPI.Models;
+using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
+using Microsoft.AspNetCore.Mvc;
+using System.Web.Http;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 
 namespace EmployeeAPI.Controllers
 {
-    [Authorize(Roles = "Admin")]
+
     [ApiController]
-    [System.Web.Http.RoutePrefix("api/v1/Employee/")]
+    [Authorize(Roles = "Admin,HR")]
+    [RoutePrefix("api/v1/Employee/")]
     public class EmployeeController : Controller
     {
         //private fields
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
+      
 
         //constructor
         public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService)
@@ -24,35 +29,7 @@ namespace EmployeeAPI.Controllers
             _countriesService = countriesService;
         }
 
-        //Url: employee/index
-        [HttpGet("Index")]
-        public IActionResult Index(string searchBy, string? searchString, string sortBy = nameof(EmployeeResponse.EmployeeName), SortOrderOption sortOrder = SortOrderOption.ASC)
-        {
-            try
-            { //Search
-                var serchFields = new Dictionary<string, string>() {
-            { nameof(EmployeeResponse.EmployeeName), "Employee Name" },
-            { nameof(EmployeeResponse.Email), "Email" },
-            { nameof(EmployeeResponse.DateOfBirth), "Date of Birth" },
-            { nameof(EmployeeResponse.Gender), "Gender" },
-            { nameof(EmployeeResponse.CountryId), "Country" },
-            { nameof(EmployeeResponse.Address), "Address" }
-          };
 
-                List<EmployeeResponse> persons = _employeeService.GetFilteredEmployee(searchBy, searchString);
-                ViewBag.CurrentSearchBy = searchBy;
-                ViewBag.CurrentSearchString = searchString;
-
-                //Sort
-                List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(persons, sortBy, sortOrder);
-                return (IActionResult)sortedPersons.ToList();
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message =ex.Message });
-            }
-        }
 
         [HttpGet("GetAllCountries")]
         public List<CountryResponse> GetAllCountries()
@@ -66,17 +43,7 @@ namespace EmployeeAPI.Controllers
 
         }
 
-        [HttpPost("GetFilteredEmployee")]
-        public List<EmployeeResponse> GetFilteredEmployee(string searchBy, string? searchString)
-        {
-            try
-            {
-                List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
-                return employee;
-            }
-            catch (Exception ex) { throw new Exception(ex.Message); }
-
-        }
+       
 
         [HttpPost("GetAllEmployees")]
         public List<EmployeeResponse> GetAllEmployees()
@@ -88,18 +55,6 @@ namespace EmployeeAPI.Controllers
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
 
-        }
-
-        [HttpPost("GetSortedEmployee")]
-        public List<EmployeeResponse> GetSortedEmployee(string searchBy, string? searchString, string sortBy = nameof(EmployeeResponse.EmployeeName), SortOrderOption sortOrder = SortOrderOption.ASC)
-        {
-            try
-            {
-                List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
-                List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(employee, sortBy, sortOrder);
-                return sortedPersons;
-            }
-            catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
 
@@ -167,8 +122,34 @@ namespace EmployeeAPI.Controllers
 
                 var result = _employeeService.DeleteEmployee(UpdateResult.EmployeeId);
                 return result;
-            }catch (Exception ex) { throw new Exception(ex.Message); }
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
         }
+
+        [HttpPost("GetFilteredEmployee")]
+        public List<EmployeeResponse> GetFilteredEmployee(string searchBy, string? searchString)
+        {
+            try
+            {
+                List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
+                return employee;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+
+        }
+
+        [HttpPost("GetSortedEmployee")]
+        public List<EmployeeResponse> GetSortedEmployee(string searchBy, string? searchString, string sortBy = nameof(EmployeeResponse.EmployeeName), SortOrderOption sortOrder = SortOrderOption.ASC)
+        {
+            try
+            {
+                List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
+                List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(employee, sortBy, sortOrder);
+                return sortedPersons;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+        }
+
     }
 }
 
