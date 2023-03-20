@@ -1,10 +1,12 @@
 ﻿using EmployeeAPI.Models;
 using EmployeeServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace EmployeeAPI.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [System.Web.Http.RoutePrefix("api/v1/")]
     public class ServerInformationControllers : Controller
@@ -21,6 +23,7 @@ namespace EmployeeAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetServerTime")]
+        [AllowAnonymous]
         public IActionResult GetServerTime()
         {
             try
