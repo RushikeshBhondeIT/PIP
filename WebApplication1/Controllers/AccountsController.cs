@@ -35,6 +35,8 @@ namespace EmployeeAPI.Controllers
             _signInManager = signInManager;
         }
 
+      
+
         [HttpGet("Register")]
         public IActionResult Index()
         {
