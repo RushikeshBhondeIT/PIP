@@ -192,7 +192,7 @@ namespace EmployeeAPI.Controllers
                     {
                         ModelState.AddModelError(error.Code, error.Description);
                     }
-                    return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Success", Message = $"Password has  been changed !" });
+                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"Password has  been changed !" });
 
                 }
                 return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Password has not been changed , Please try once again" });

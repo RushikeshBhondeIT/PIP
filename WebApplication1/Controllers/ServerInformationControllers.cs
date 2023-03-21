@@ -9,7 +9,6 @@ using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 
 namespace EmployeeAPI.Controllers
 {
-    [Authorize(Roles = "HR")]
     [ApiController]
     [Authorize(Roles = "Admin,HR")]
     [RoutePrefix("api/v1/")]
