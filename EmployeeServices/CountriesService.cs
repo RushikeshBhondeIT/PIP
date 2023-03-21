@@ -15,35 +15,31 @@ namespace EmployeeServicesRepo
         }
         public CountryResponse AddCountry(CountryAddRequest? countryAddRequest)
         {
-            try
-            {
-                if (countryAddRequest == null)
-                {
-                    throw new ArgumentNullException(nameof(countryAddRequest));
-                }
-                if (countryAddRequest.CountryName == null)
-                {
-                    throw new ArgumentNullException(nameof(countryAddRequest.CountryName));
-                }
-                if (_db.Countries.Where(country => country.CountryName == countryAddRequest.CountryName).Count() > 0)
-                {
-                    throw new ArgumentException("Given country name is alreday exist .");
-                }
-                //Convert object from CountryAddRequest to country type
-                Country country = countryAddRequest.ToCoutry();
 
-                //generate CountryID
-                country.CountryId = Guid.NewGuid();
-                //Add country object into _db
-                _db.Countries.Add(country);
-                _db.SaveChanges();
-                return country.ToCountryResponse();
-            }
-            catch
+            if (countryAddRequest == null)
             {
-                return new CountryResponse();
+                throw new ArgumentNullException(nameof(countryAddRequest));
             }
-            finally { _db.Dispose(); }
+            if (countryAddRequest.CountryName == null)
+            {
+                throw new ArgumentNullException(nameof(countryAddRequest.CountryName));
+            }
+            if (_db.Countries.Where(country => country.CountryName == countryAddRequest.CountryName).Count() > 0)
+            {
+                throw new ArgumentException("Given country name is alreday exist .");
+            }
+            //Convert object from CountryAddRequest to country type
+            Country country = countryAddRequest.ToCoutry();
+
+            //generate CountryID
+            country.CountryId = Guid.NewGuid();
+            //Add country object into _db
+            _db.Countries.Add(country);
+            _db.SaveChanges();
+            _db.Dispose();
+            return country.ToCountryResponse();
+
+
 
         }
 
@@ -68,7 +64,8 @@ namespace EmployeeServicesRepo
                 Country? country_response_from_list = _db.Countries.FirstOrDefault(country => country.CountryId == countryId);
                 if (country_response_from_list == null) { return null; };
                 return country_response_from_list.ToCountryResponse() ?? null;
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -86,7 +83,8 @@ namespace EmployeeServicesRepo
                 var day = dateValue.DayOfWeek.ToString();
                 Thread.CurrentThread.CurrentCulture = originalCulture;
                 return day;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

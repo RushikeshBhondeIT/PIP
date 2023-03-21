@@ -40,8 +40,7 @@ namespace EmployeeServicesRepo
         }
         public EmployeeResponse AddEmployee(EmployeeAddRequest? empoyeeAddRequest)
         {
-            try
-            {
+           
                 if (empoyeeAddRequest == null) { throw new ArgumentNullException(); }
                 ValidationHelper.ModelValidation(empoyeeAddRequest);
                 Employee employee = empoyeeAddRequest.ToEmployee();
@@ -51,15 +50,6 @@ namespace EmployeeServicesRepo
                 _db.Dispose();
                 //NOTICE
                 return (employee.ToEmployeeResponse());
-            }
-            catch(Exception ex) 
-            {
-                throw new Exception(ex.Message);
-            }
-            finally
-            {
-                _db.Dispose();  
-            }
         }
 
         public List<EmployeeResponse> GetAllEmployee()
@@ -96,7 +86,6 @@ namespace EmployeeServicesRepo
             {
                 throw new Exception(ex.Message);
             }
-            finally { _db.Dispose(); }
           
         }
 
@@ -114,15 +103,15 @@ namespace EmployeeServicesRepo
                         case nameof(Employee.EmployeeName):
                             matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.EmployeeName) ? temp.EmployeeName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
                             break;
-                        //case nameof(Employee.Email):
-                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Email) ? temp.Email.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        //    break;
-                        //case nameof(Employee.Gender):
-                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Gender.ToString()) ? temp.Gender.ToString().Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        //    break;
-                        //case nameof(Employee.CountryID):
-                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.CountryName) ? temp.CountryName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        //    break;
+                        case nameof(Employee.Email):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Email) ? temp.Email.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
+                        case nameof(Employee.Gender):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Gender.ToString()) ? temp.Gender.ToString().Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
+                        case nameof(Employee.CountryID):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.CountryName) ? temp.CountryName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
                         default:
                             matchingEmployee = allEmployee;
                             break;
@@ -232,11 +221,11 @@ namespace EmployeeServicesRepo
                 }
                 _db.Employees.Remove(_db.Employees.First(temp => temp.EmployeeId == id));
                 _db.SaveChanges();
+                _db.Dispose();
                 return true;
 
             }
             catch { return false; }
-            finally { _db.Dispose(); }
            
         }
 
