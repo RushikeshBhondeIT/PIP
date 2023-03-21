@@ -1,14 +1,17 @@
 ﻿using EmployeeAPI.Models;
 using EmployeeServiceContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Web.Http;
+using AllowAnonymousAttribute = Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 
 namespace EmployeeAPI.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Admin,HR")]
     [RoutePrefix("api/v1/")]
-    [Authorize(Roles ="Admin,HR")]
     public class ServerInformationControllers : Controller
     {
         private readonly IEmployeeService _employeeService;
@@ -41,6 +44,7 @@ namespace EmployeeAPI.Controllers
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("GetDay")]
         public IActionResult GetDay(DateTime? dateTime)
         {

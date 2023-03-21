@@ -1,18 +1,16 @@
 ﻿
 using EmployeeAPI.Models;
-using EmployeeServicesRepo.Heplers;
 using LeapYearAPI.LeapYearRepository;
 using LeapYearAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Web.Http;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace LeapYearAPI.Controllers
 {
     [RoutePrefix("api/v1/")]
-    [Authorize]
     public class LeapYearController : Controller
     {
         private readonly ILeapYearRepository _leapYearRepository;
@@ -21,7 +19,7 @@ namespace LeapYearAPI.Controllers
         {
             _leapYearRepository = leapYearRepository;
         }
-
+        
         /// <summary>
         /// Api to get the Leap Year of Given range of date
         /// </summary>

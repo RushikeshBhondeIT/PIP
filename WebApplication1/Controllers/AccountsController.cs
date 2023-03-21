@@ -82,7 +82,7 @@ namespace EmployeeAPI.Controllers
             var confirmationLink = $"{_configuration["Url:EmailConfirmationLink"]}{token}&email={user.Email}";
             var message = new MessageForEmail(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
             _emailService.SendEmailToVerify(message);
-            return StatusCode(StatusCodes.Status201Created, new Response { Status = "Info", Message = $"User Created & Email Sent to {user.Email}  Successfully " });
+            return StatusCode(StatusCodes.Status201Created, new Response { Status = "Success", Message = $"User Created & Email Sent to {user.Email}  Successfully " });
         }
 
 
@@ -109,7 +109,7 @@ namespace EmployeeAPI.Controllers
             var user = await _userManager.FindByNameAsync(loginModel.Username!);  //exception throw.
             if (user == null )//check
             {
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"Please enter correct username or password !" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = $"Please enter correct username or password !" });
             }
             await _signInManager.SignOutAsync();
             var pass = await _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
@@ -126,7 +126,7 @@ namespace EmployeeAPI.Controllers
             {
                 return this.LogInHepler(user).Result;
             }
-            return Unauthorized("This account is not authorized ! ");
+            return Unauthorized( StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = $"This User is not Authorized" }));
         }
 
         [HttpPost("LogIn-2FA")]
@@ -144,10 +144,10 @@ namespace EmployeeAPI.Controllers
                     }
 
                 }
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Erroe", Message = $"Invalid code" });
+                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = $"Invalid code" });
 
             }
-            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Success", Message = $"Invalid username or otp please try it again" });
+            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = $"Invalid username or otp please try it again" });
         }
 
         [AllowAnonymous]
@@ -197,7 +197,7 @@ namespace EmployeeAPI.Controllers
                 }
                 return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Password has not been changed , Please try once again" });
             }
-            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Couldnt Send link to email , Please tyr again" });
+            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Couldnt Send link to email , Please try again" });
         }
 
 

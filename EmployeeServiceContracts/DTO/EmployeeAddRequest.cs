@@ -36,7 +36,9 @@ namespace EmployeeServiceContracts.DTO
                 DateOfBirth = DateOfBirth,
                 Gender = Gender.ToString(),
                 CountryID = CountryID,
-                Address = Address
+                Address = Address,
+                CountryName = CountryName,
+                ReceiveNewsLetters = ReceiveNewsLetters 
             };
 
         }

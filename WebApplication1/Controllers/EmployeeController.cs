@@ -8,6 +8,7 @@ using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 using Microsoft.AspNetCore.Mvc;
 using System.Web.Http;
 using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
+using HttpPutAttribute = Microsoft.AspNetCore.Mvc.HttpPutAttribute;
 
 namespace EmployeeAPI.Controllers
 {
@@ -45,7 +46,7 @@ namespace EmployeeAPI.Controllers
 
        
 
-        [HttpPost("GetAllEmployees")]
+        [HttpGet("GetAllEmployees")]
         public List<EmployeeResponse> GetAllEmployees()
         {
             try
@@ -78,7 +79,7 @@ namespace EmployeeAPI.Controllers
             catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
-        [HttpPost("Edit")]
+        [HttpPut("Edit")]
         public UpdateEmployeeRequest Edit(UpdateEmployeeRequest employeeUpdateRequest)
         {
             try

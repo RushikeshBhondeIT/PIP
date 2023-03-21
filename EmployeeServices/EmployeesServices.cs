@@ -103,15 +103,15 @@ namespace EmployeeServicesRepo
                         case nameof(Employee.EmployeeName):
                             matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.EmployeeName) ? temp.EmployeeName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
                             break;
-                        //case nameof(Employee.Email):
-                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Email) ? temp.Email.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        //    break;
-                        //case nameof(Employee.Gender):
-                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Gender.ToString()) ? temp.Gender.ToString().Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        //    break;
-                        //case nameof(Employee.CountryID):
-                        //    matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.CountryName) ? temp.CountryName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
-                        //    break;
+                        case nameof(Employee.Email):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Email) ? temp.Email.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
+                        case nameof(Employee.Gender):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.Gender.ToString()) ? temp.Gender.ToString().Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
+                        case nameof(Employee.CountryID):
+                            matchingEmployee = allEmployee.Where(temp => (string.IsNullOrEmpty(temp.CountryName) ? temp.CountryName.Contains(serchString, StringComparison.OrdinalIgnoreCase) : true)).ToList();
+                            break;
                         default:
                             matchingEmployee = allEmployee;
                             break;
