@@ -19,8 +19,8 @@ namespace EmployeeServiceContracts.DTO
 
 
         [Required(ErrorMessage = "Phone can't be blank")]
-        [RegularExpression("^[0-9]*$", ErrorMessage = "Phone number should contain numbers only")]
         [DataType(DataType.PhoneNumber)]
+        [RegularExpression("^\\d{4}\\d{3}\\d{4}$", ErrorMessage = "Not a valid phone number")]
         public string Phone { get; set; }
 
 

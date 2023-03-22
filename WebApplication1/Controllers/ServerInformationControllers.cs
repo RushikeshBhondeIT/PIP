@@ -44,7 +44,6 @@ namespace EmployeeAPI.Controllers
         /// </summary>
         /// <param name="dateTime"></param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpGet("GetDay")]
         public IActionResult GetDay(DateTime? dateTime)
         {

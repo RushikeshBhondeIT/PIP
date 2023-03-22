@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using MimeKit;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,13 +48,13 @@ builder.Services.AddAuthentication(options =>
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
-        ValidateIssuer = true,
+        ValidateIssuer = false,
         ValidateAudience = false,
         ValidateIssuerSigningKey = true,
         ValidAudience = builder.Configuration["JWT:ValidAudieance"],
         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
-        ClockSkew=TimeSpan.Zero
+        //ClockSkew=TimeSpan.Zero
     };
 });
 

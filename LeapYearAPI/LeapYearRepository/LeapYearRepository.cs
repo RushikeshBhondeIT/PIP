@@ -1,14 +1,16 @@
 ﻿using EmployeeAPI.Models;
 using LeapYearAPI.Models;
 using Newtonsoft.Json;
+using System;
+using System.Text;
+
 
 namespace LeapYearAPI.LeapYearRepository
 {
     public class LeapYearRepository : ILeapYearRepository
     {
         private readonly IConfiguration _configuration;
-        private readonly ILeapYearRepository _leapYearRepository;
-        private ILeapYearRepository @object;
+        private static string? _token;
 
         public LeapYearRepository(IConfiguration configuration)
         {
@@ -16,23 +18,25 @@ namespace LeapYearAPI.LeapYearRepository
 
         }
 
-        //public LeapYearRepository(ILeapYearRepository @object)
-        //{
-        //    this.@object = @object;
-        //}
-
         public List<LeapYearResponse> GetLeapYear(LeapYearRange leapYearRange)
         {
             try
             {
+                int startYear = leapYearRange.StartYear;
+                int endYear = leapYearRange.EndYear;
+                List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
                 if (leapYearRange.StartYear <= 0 || leapYearRange.EndYear <= 0 || leapYearRange == null)
                 {
                     throw new ArgumentException("Range is not valid , It should be positive values");
                 }
-                List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
+                if (leapYearRange.StartYear > leapYearRange.EndYear)
+                {
+                    startYear = leapYearRange.EndYear;
+                    endYear = leapYearRange.StartYear;
+                }
                 if (leapYearRange != null)
                 {
-                    for (int year = leapYearRange.StartYear; year <= leapYearRange.EndYear; year++)
+                    for (int year = startYear; year <= endYear; year++)
                     {
                         if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
                         {
@@ -40,7 +44,6 @@ namespace LeapYearAPI.LeapYearRepository
                         }
                     }
                 }
-
                 return yearsList;
             }
             catch (Exception ex)
@@ -84,11 +87,17 @@ namespace LeapYearAPI.LeapYearRepository
         {
             try
             {
-                string strurltest = string.Format($"{url}{dateTime}");
-                HttpClient client = new HttpClient();
-                var result = await client.GetAsync(strurltest);
+                HttpClient httpClient = new HttpClient();
+                var requestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri($"{url}{dateTime}"),
+                };
+                requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+                requestMessage.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+                var response = await httpClient.SendAsync(requestMessage);
                 string dayOfLeapYear = "";
-                using (Stream stream = result.Content.ReadAsStream())
+                using (Stream stream = response.Content.ReadAsStream())
                 {
                     StreamReader sr = new StreamReader(stream);
                     dayOfLeapYear = sr.ReadToEnd();
@@ -98,7 +107,48 @@ namespace LeapYearAPI.LeapYearRepository
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                throw new Exception(ex.Message);
+            }
+
+        }
+        /// <summary>
+        /// Call of Employeed Api project endpoint which will return token of authorization.
+        /// </summary>
+        /// <param name="logIn"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public LoginResponseModel LogInApiCall(LogInModel logIn)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var url = _configuration["Url:LogInUrl"];
+                    client.BaseAddress = new Uri(url);
+
+                    //HTTP POST
+                    var postTask = client.PostAsJsonAsync("LogIn", logIn);
+                    postTask.Wait();
+
+                    var result = postTask.Result;
+                    string response;
+                    LoginResponseModel model = new LoginResponseModel();
+
+                    using (Stream stream = result.Content.ReadAsStream())
+                    {
+                        StreamReader sr = new StreamReader(stream);
+                        response = sr.ReadToEnd();
+
+                        sr.Close();
+                        model = JsonConvert.DeserializeObject<LoginResponseModel>(response);
+                        _token = model.token!;
+                    }
+                    return model;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
     }

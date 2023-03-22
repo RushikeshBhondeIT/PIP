@@ -4,7 +4,6 @@ using LeapYearAPI.LeapYearRepository;
 using LeapYearAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Web.Http;
-using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
@@ -19,7 +18,21 @@ namespace LeapYearAPI.Controllers
         {
             _leapYearRepository = leapYearRepository;
         }
-        
+
+        [HttpPost("LogIn")]
+        public LoginResponseModel LogIn(LogInModel logIn)
+        {
+            try
+            {
+                return _leapYearRepository.LogInApiCall(logIn);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
         /// <summary>
         /// Api to get the Leap Year of Given range of date
         /// </summary>
