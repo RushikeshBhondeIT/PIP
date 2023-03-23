@@ -1,21 +1,27 @@
 
 using LeapYearAPI.LeapYearRepository;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.ConfigureLogging(logging =>
+
+//logging
+builder.Host.UseSerilog((HostBuilderContext context, IServiceProvider services, LoggerConfiguration loggerConfiguration) =>
 {
-    logging.ClearProviders();
-    logging.AddConsole();
-    logging.AddDebug();
-    logging.AddEventLog();
+    loggerConfiguration
+    .ReadFrom.Configuration(context.Configuration) //read configuration settings from built-in IConfiguration
+    .ReadFrom.Services(services); //read out current app's services and make them available to serilog
 });
+
+
 // Add services to the container.
 builder.Services.AddScoped<ILeapYearRepository, LeapYearRepository>();
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 //builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(option =>
 {

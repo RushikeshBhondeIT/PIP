@@ -4,16 +4,12 @@ using EmployeeServicesRepo;
 using Serilog;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Configuration;
 using EmployeeServiceContracts.DTO;
 using EmployeeServiceContracts;
-using Umbraco.Core.Composing.CompositionExtensions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using MimeKit;
-using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 

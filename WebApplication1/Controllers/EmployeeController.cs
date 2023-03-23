@@ -21,7 +21,7 @@ namespace EmployeeAPI.Controllers
         //private fields
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
-      
+
 
         //constructor
         public EmployeeController(IEmployeeService employeeService, ICountriesService countriesService)
@@ -31,6 +31,19 @@ namespace EmployeeAPI.Controllers
         }
 
 
+        [HttpPost("AddCountries")]
+        public CountryResponse AddCountry(CountryAddRequest? countryAddRequest)
+        {
+            try
+            {
+                var country= _countriesService.AddCountry(countryAddRequest);
+                return country;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
         [HttpGet("GetAllCountries")]
         public List<CountryResponse> GetAllCountries()
@@ -41,10 +54,9 @@ namespace EmployeeAPI.Controllers
                 return countries;
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
-
         }
 
-       
+
 
         [HttpGet("GetAllEmployees")]
         public List<EmployeeResponse> GetAllEmployees()
