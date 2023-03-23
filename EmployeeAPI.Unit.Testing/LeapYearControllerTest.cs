@@ -4,21 +4,27 @@ using EmployeeAPI.Models;
 using LeapYearAPI.LeapYearRepository;
 using Moq;
 using Microsoft.Extensions.Configuration;
-using Moq.Protected;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net;
+using AutoFixture;
+using LeapYearAPI.Controllers;
+
 
 namespace EmployeeAPI.Unit.Testing
 {
     public class LeapYearControllerTest
     {
         private readonly LeapYearRepository _leapYearRepository;
-        private readonly Mock<ILeapYearRepository> mockLeapYearRepositoryMock = new Mock<ILeapYearRepository>();
         private readonly Mock<IConfiguration> configMock = new Mock<IConfiguration>();
+
+        private readonly ILeapYearRepository _IleapYearService;
+        private readonly Mock<ILeapYearRepository> _IleapYearServiceMock;
+        private readonly Fixture _fixture;
         public LeapYearControllerTest()
         {
             _leapYearRepository = new LeapYearRepository(configMock.Object);
+
+            _fixture = new Fixture();
+            _IleapYearServiceMock = new Mock<ILeapYearRepository>();
+            _IleapYearService = _IleapYearServiceMock.Object;
         }
 
         [Fact]
@@ -34,7 +40,6 @@ namespace EmployeeAPI.Unit.Testing
         public void GetLeapYear_TestGettingProperLeapYears()
         {
             LeapYearRange range = new LeapYearRange() { StartYear = 2000, EndYear = 2012 };
-            //  var expectedLeapYears = new string[] { "2000", "2004", "2008", "2012", "2016", "2020" }.ToList();
             List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
             yearsList.Add(new LeapYearResponse { LeapYear = 2000 });
             yearsList.Add(new LeapYearResponse { LeapYear = 2004 });
@@ -45,44 +50,91 @@ namespace EmployeeAPI.Unit.Testing
             Assert.Equal(actualLeapYear, leapYears);
         }
 
+
         [Fact]
-        public  async Task GetLeapYear_TestGettingProperLe()
+        public void GetLeapYear_TestGettingArgumentExceptionForZeroValues()
         {
-            HttpResponseMessage httpResponseMessage = new()
+            LeapYearRange range = new LeapYearRange() { StartYear = 0, EndYear = 0 };
+            List<LeapYearResponse> actual = new List<LeapYearResponse>();
+            List<LeapYearResponse> expected = new List<LeapYearResponse>();
+
+            Assert.Throws<System.Exception>(() =>
             {
-                StatusCode = System.Net.HttpStatusCode.OK
-            };
+                actual = _leapYearRepository.GetLeapYear(range);
+            });
 
-            var mockHttpClient = GetMockedHttpClient(httpResponseMessage);
-
-            using var application = new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program>()
-                .WithWebHostBuilder(builder =>
-                {
-                    builder.ConfigureServices(services =>
-                    {
-                        ServiceDescriptor serviceDescriptor = new(typeof(ILeapYearRepository),
-                            typeof(LeapYearRepository), ServiceLifetime.Scoped);
-                        services.Remove(serviceDescriptor);
-                        services.AddScoped<ILeapYearRepository>(S => new LeapYearRepository((IConfiguration)mockHttpClient));
-                    });
-                });
-            var client = application.CreateClient();
-            var response = await client.GetAsync("");
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(actual, expected);
         }
 
-        public static HttpClient GetMockedHttpClient(HttpResponseMessage httpResponseMessage)
+        [Fact]
+        public void GetLeapYear_TestGettingArgumentExceptionForMinusValues()
         {
-            var httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-            httpMessageHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                "SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpResponseMessage);
-            var httpClient = new HttpClient(httpMessageHandlerMock.Object)
+            LeapYearRange range = new LeapYearRange() { StartYear = -20, EndYear = -30 };
+            List<LeapYearResponse> actual = new List<LeapYearResponse>();
+            List<LeapYearResponse> expected = new List<LeapYearResponse>();
+
+            Assert.Throws<System.Exception>(() =>
             {
-                BaseAddress = new System.Uri("https://localhost:7115/GetDay?dateTime=")
-            };
-            return httpClient;
+                actual = _leapYearRepository.GetLeapYear(range);
+            });
+
+            Assert.Equal(actual, expected);
+        }
+
+        [Fact]
+        public void LogIn_ProperLoginTest()
+        {
+            //Arrange
+
+            LogInModel person_add_request = _fixture.Create<LogInModel>();
+
+            LoginResponseModel person_response = _fixture.Create<LoginResponseModel>();
+            _IleapYearServiceMock.Setup(temp => temp.LogInApiCall(person_add_request)).Returns(person_response);
+
+            LeapYearController leapYearController = new LeapYearController(_IleapYearService);
+
+            //Act
+            //leapYearController.ModelState.AddModelError("PersonName", "Person Name can't be blank");
+
+            LoginResponseModel result = leapYearController.LogIn(person_add_request);
+            //Assert
+            LoginResponseModel viewResult = Assert.IsType<LoginResponseModel>(result);
+
+            viewResult.Equals(person_response);
+
+        }
+
+
+        [Fact]
+        public void LogIn_NullResponseIfValueNotProvided()
+        {
+            //Arrange
+            LogInModel person_add_request = _fixture.Create<LogInModel>();
+            LoginResponseModel person_response = _fixture.Create<LoginResponseModel>();
+            _IleapYearServiceMock.Setup(temp => temp.LogInApiCall(person_add_request)).Returns(person_response);
+            LeapYearController leapYearController = new LeapYearController(_IleapYearService);
+            //Act
+            leapYearController.ModelState.AddModelError("PersonName", "Person Name can't be blank");
+            LoginResponseModel result = leapYearController.LogIn(null);
+            //Assert
+            Assert.Null(result);
+        }
+
+
+        [Fact]
+        public void GetLeapYearDay_ProperDataGettingTest()
+        {
+            //Arrange
+            DateTime start = new DateTime(2000, 03, 13);
+            DateTime end = new DateTime(2014, 03, 13);
+            List<LeapYearDayResponse> person_response = _fixture.Create<List<LeapYearDayResponse>>();
+            _IleapYearServiceMock.Setup(temp => temp.GetLeapYearsDay(start, end)).Returns(person_response);
+            LeapYearController leapYearController = new LeapYearController(_IleapYearService);
+            List<LeapYearDayResponse> result = leapYearController.GetLeapYearsDay(start, end);
+            //Assert
+            List<LeapYearDayResponse> viewResult = Assert.IsType<List<LeapYearDayResponse>>(result);
+
+            viewResult.Equals(person_response);
         }
     }
 }

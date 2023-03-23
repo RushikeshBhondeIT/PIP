@@ -12,7 +12,7 @@ namespace EmployeeAPI.Unit.Testing
     {
         private readonly IEmployeeService _employeeService;
         private readonly ICountriesService _countriesService;
-     
+
         public ServerInformationControllerTest()
         {
             var countriesInitialData = new List<Country>() { };
@@ -46,12 +46,14 @@ namespace EmployeeAPI.Unit.Testing
         [Fact]
         public void Cant_GetDay_IfDateNotProvides()
         {
-            DateTime? DateToGetDay = null; 
-           
-                var ApiResponse = _employeeService.GetDay(DateToGetDay);
-                var result = ApiResponse;
-                Assert.Equal("DateTime is not provided Properly",result);
+            DateTime? DateToGetDay = null;
+
+            var ApiResponse = _employeeService.GetDay(DateToGetDay);
+            var result = ApiResponse;
+            Assert.Equal("DateTime is not provided Properly", result);
         }
-        
+
+
+
     }
 }

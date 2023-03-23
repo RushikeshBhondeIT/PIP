@@ -85,8 +85,7 @@ namespace LeapYearAPI.LeapYearRepository
         /// <returns></returns>
         private static async Task<string> GetdayAccordingLeapYear(DateTime dateTime, string url)
         {
-            try
-            {
+           
                 HttpClient httpClient = new HttpClient();
                 var requestMessage = new HttpRequestMessage
                 {
@@ -97,18 +96,21 @@ namespace LeapYearAPI.LeapYearRepository
                 requestMessage.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
                 var response = await httpClient.SendAsync(requestMessage);
                 string dayOfLeapYear = "";
-                using (Stream stream = response.Content.ReadAsStream())
+                if (response.IsSuccessStatusCode )
                 {
-                    StreamReader sr = new StreamReader(stream);
-                    dayOfLeapYear = sr.ReadToEnd();
-                    sr.Close();
+                  
+                    using (Stream stream = response.Content.ReadAsStream())
+                    {
+                        StreamReader sr = new StreamReader(stream);
+                        dayOfLeapYear = sr.ReadToEnd();
+                        sr.Close();
+                    }
+                    return dayOfLeapYear;
                 }
-                return dayOfLeapYear;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase + " "+ "User, Please login with your username and password !" );
+                }
 
         }
         /// <summary>
@@ -151,5 +153,7 @@ namespace LeapYearAPI.LeapYearRepository
                 throw new Exception(ex.Message);
             }
         }
+
+  
     }
 }
