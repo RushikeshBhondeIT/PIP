@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Umbraco.Core.Composing.CompositionExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Host.UseSerilog((HostBuilderContext context, IServiceProvider services, 
     .ReadFrom.Configuration(context.Configuration) //read configuration settings from built-in IConfiguration
     .ReadFrom.Services(services); //read out current app's services and make them available to serilog
 });
+
 
 #region Idenity Configuration
 //Add config for required eamil
@@ -123,7 +125,11 @@ builder.Services.AddScoped<IEmployeeService, EmployeesServices>();
 //Data Source=(localdb)\ProjectModels;Initial Catalog=EmployeeDatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False
 
 var app = builder.Build();
-
+app.UseCors(builder => builder
+.AllowAnyHeader()
+.AllowAnyMethod()
+.SetIsOriginAllowed((host) => true)
+.AllowCredentials());
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

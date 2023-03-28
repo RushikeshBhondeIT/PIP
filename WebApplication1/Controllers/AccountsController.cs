@@ -129,7 +129,7 @@ namespace EmployeeAPI.Controllers
             return Unauthorized( StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = $"This User is not Authorized" }));
         }
 
-        [HttpPost("LogIn-2FA")]
+        [HttpGet("LogIn-2FA")]
         public async Task<IActionResult> LoginWithOTP(string code, string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -151,7 +151,7 @@ namespace EmployeeAPI.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("Forgot-Password")]
+        [HttpGet("Forgot-Password")]
         public async Task<IActionResult> ForgotPassword([Required] string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -161,7 +161,7 @@ namespace EmployeeAPI.Controllers
                 var forgotPasswordLink = $"{_configuration["Url:ForgotPasswordLink"]}{token}&email={user.Email}";
                 var message = new MessageForEmail(new string[] { user.Email! }, "Forgot Password link", forgotPasswordLink!);
                 _emailService.SendEmailToVerify(message);
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"Password change request is sent on Email {user.Email} Please Open your email  & click the link" });
+                return StatusCode(StatusCodes.Status200OK, new Response { Status = forgotPasswordLink, Message = $"Password change request is sent on Email {user.Email} Please Open your email  & click the link" });
             }
             return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Cannot send email , please try again with proper email" });
         }
@@ -238,7 +238,7 @@ namespace EmployeeAPI.Controllers
             {
                 token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
                 expration = jwtToken.ValidTo
-            });
+            }); 
         }
     }
 }

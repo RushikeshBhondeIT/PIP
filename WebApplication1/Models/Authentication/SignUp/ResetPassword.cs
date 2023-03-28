@@ -8,7 +8,7 @@ namespace EmployeeAPI.Models.Authentication.SignUp
         [Required]
         public string Password { get; set; } = null!;
         [Compare("Password", ErrorMessage = "The Password and confirm password does not match")]
-        public string PasswordConfirmation { get; set; } = null!;
+        public string ConfirmPassword { get; set; } = null!;
         public string EMail { get; set; } = null!;
         public string Token { get; set; } = null!;
 
