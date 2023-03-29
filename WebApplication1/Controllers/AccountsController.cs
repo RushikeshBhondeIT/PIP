@@ -6,6 +6,7 @@ using EmployeeServiceContracts.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using ServiceStack.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -56,7 +57,7 @@ namespace EmployeeAPI.Controllers
                 Email = registerDTO.Email,
                 PhoneNumber = registerDTO.Phone,
                 UserName = registerDTO.EmployeeName,
-                TwoFactorEnabled = true
+               // TwoFactorEnabled = true
             };
             if (await _roleManager.RoleExistsAsync(role))
             {
@@ -124,6 +125,7 @@ namespace EmployeeAPI.Controllers
             //checking the password
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password!))
             {
+
                 return this.LogInHepler(user).Result;
             }
             return Unauthorized( StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = $"This User is not Authorized" }));
@@ -233,6 +235,7 @@ namespace EmployeeAPI.Controllers
             //generate the token with the claims 
 
             var jwtToken = GetToken(authClaims);
+            Log.Information(string.Format($"User {user.UserName} Logged in Time{DateTime.Now}" + " " + $"With Expiration Time:{jwtToken.ValidTo}"));
             // returning the token
             return Ok(new
             {

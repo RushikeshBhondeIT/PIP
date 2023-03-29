@@ -196,6 +196,8 @@ namespace EmployeeServicesRepo
                 matchingEmployee.DateOfBirth = updateEmployeeRequest.DateOfBirth;
                 matchingEmployee.CountryID = updateEmployeeRequest.CountryID;
                 matchingEmployee.Address = updateEmployeeRequest.Address;
+                matchingEmployee.CountryName = updateEmployeeRequest.CountryName;
+                matchingEmployee.Gender = updateEmployeeRequest.Gender;
                 matchingEmployee.ReceiveNewsLetters = updateEmployeeRequest.ReceiveNewsLetters;
                 _db.SaveChanges();
 

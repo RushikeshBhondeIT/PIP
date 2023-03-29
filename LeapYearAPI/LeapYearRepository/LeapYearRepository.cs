@@ -1,6 +1,7 @@
 ﻿using EmployeeAPI.Models;
 using LeapYearAPI.Models;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Text;
 
@@ -85,32 +86,35 @@ namespace LeapYearAPI.LeapYearRepository
         /// <returns></returns>
         private static async Task<string> GetdayAccordingLeapYear(DateTime dateTime, string url)
         {
-           
-                HttpClient httpClient = new HttpClient();
-                var requestMessage = new HttpRequestMessage
+            HttpClient httpClient = new HttpClient();
+            var requestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"{url}{dateTime}"),
+            };
+            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+            requestMessage.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+            var response = await httpClient.SendAsync(requestMessage);
+            if (response.ReasonPhrase == "Unauthorized")
+            {
+                Log.Error(response.ReasonPhrase + " " + "User, Please login with your username and password !");
+                throw new Exception(response.ReasonPhrase + " " + "User, Please login with your username and password !");
+            }
+            string dayOfLeapYear = string.Empty;
+            if (response.IsSuccessStatusCode)
+            {
+                using (Stream stream = response.Content.ReadAsStream())
                 {
-                    Method = HttpMethod.Get,
-                    RequestUri = new Uri($"{url}{dateTime}"),
-                };
-                requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
-                requestMessage.Content = new StringContent(string.Empty, Encoding.UTF8, "application/json");
-                var response = await httpClient.SendAsync(requestMessage);
-                string dayOfLeapYear = "";
-                if (response.IsSuccessStatusCode )
-                {
-                  
-                    using (Stream stream = response.Content.ReadAsStream())
-                    {
-                        StreamReader sr = new StreamReader(stream);
-                        dayOfLeapYear = sr.ReadToEnd();
-                        sr.Close();
-                    }
-                    return dayOfLeapYear;
+                    StreamReader sr = new StreamReader(stream);
+                    dayOfLeapYear = sr.ReadToEnd();
+                    sr.Close();
                 }
-                else
-                {
-                    throw new Exception(response.ReasonPhrase + " "+ "User, Please login with your username and password !" );
-                }
+                return dayOfLeapYear;
+            }
+            else
+            {
+                throw new Exception(response.ReasonPhrase + " " + "User, Please login with your username and password !");
+            }
 
         }
         /// <summary>
@@ -154,6 +158,6 @@ namespace LeapYearAPI.LeapYearRepository
             }
         }
 
-  
+
     }
 }
