@@ -28,6 +28,7 @@ namespace LeapYearAPI.LeapYearRepository
                 List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
                 if (leapYearRange.StartYear <= 0 || leapYearRange.EndYear <= 0 || leapYearRange == null)
                 {
+                    LogMessage("Error", "Range is not valid , It should be greater than  Zero");
                     throw new ArgumentException("Range is not valid , It should be positive values");
                 }
                 if (leapYearRange.StartYear > leapYearRange.EndYear)
@@ -49,6 +50,7 @@ namespace LeapYearAPI.LeapYearRepository
             }
             catch (Exception ex)
             {
+                LogMessage("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -74,7 +76,8 @@ namespace LeapYearAPI.LeapYearRepository
                 return leapYearWithDay;
             }
             catch (Exception ex)
-            {
+            {   
+                LogMessage("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -97,7 +100,7 @@ namespace LeapYearAPI.LeapYearRepository
             var response = await httpClient.SendAsync(requestMessage);
             if (response.ReasonPhrase == "Unauthorized")
             {
-                Log.Error(response.ReasonPhrase + " " + "User, Please login with your username and password !");
+                LogMessage("Error", $"{response.ReasonPhrase}  User, Please login with your username and password !") ;
                 throw new Exception(response.ReasonPhrase + " " + "User, Please login with your username and password !");
             }
             string dayOfLeapYear = string.Empty;
@@ -113,6 +116,7 @@ namespace LeapYearAPI.LeapYearRepository
             }
             else
             {
+                LogMessage("Error", $"{response.ReasonPhrase}  User, Please login with your username and password !");
                 throw new Exception(response.ReasonPhrase + " " + "User, Please login with your username and password !");
             }
 
@@ -127,6 +131,7 @@ namespace LeapYearAPI.LeapYearRepository
         {
             try
             {
+                LoginResponseModel model = new LoginResponseModel();
                 using (var client = new HttpClient())
                 {
                     var url = _configuration["Url:LogInUrl"];
@@ -135,27 +140,53 @@ namespace LeapYearAPI.LeapYearRepository
                     //HTTP POST
                     var postTask = client.PostAsJsonAsync("LogIn", logIn);
                     postTask.Wait();
-
                     var result = postTask.Result;
-                    string response;
-                    LoginResponseModel model = new LoginResponseModel();
-
-                    using (Stream stream = result.Content.ReadAsStream())
+                    if (result.IsSuccessStatusCode)
                     {
-                        StreamReader sr = new StreamReader(stream);
-                        response = sr.ReadToEnd();
+                        string response;
+                        using (Stream stream = result.Content.ReadAsStream())
+                        {
+                            StreamReader sr = new StreamReader(stream);
+                            response = sr.ReadToEnd();
 
-                        sr.Close();
-                        model = JsonConvert.DeserializeObject<LoginResponseModel>(response);
-                        _token = model.token!;
+                            sr.Close();
+                            model = JsonConvert.DeserializeObject<LoginResponseModel>(response);
+                            _token = model.token!;
+                        }
+                        LogMessage("Succes", $" {logIn.Username}  Logged In Time = {DateTime.Now}");
+                        return model;
+                        
+                    }
+                    if(!result.IsSuccessStatusCode)
+                    {
+                        LogMessage(result.StatusCode.ToString(), result.ReasonPhrase!);
                     }
                     return model;
                 }
             }
             catch (Exception ex)
             {
+                LogMessage("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
+        }
+        private static Response LogMessage(string status, string message)
+        {
+            Response res = new Response
+            {
+                Status = status,
+                Message = message
+            };
+            if (status == "Error")
+            {
+                Log.Error(res.Status + " " + " " + res.Message);
+
+            }
+            else
+            {
+                Log.Information(res.Status + " " + " " + res.Message);
+            }
+            return res;
         }
 
 

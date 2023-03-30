@@ -6,8 +6,10 @@ using EmployeeServiceContracts.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using ServiceStack.DataAnnotations;
+using ServiceStack.Messaging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -28,6 +30,8 @@ namespace EmployeeAPI.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        ObjectResult? status;
+
 
         public AccountsController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailService emailService, SignInManager<IdentityUser> signInManager)
         {
@@ -50,14 +54,14 @@ namespace EmployeeAPI.Controllers
             //Check user is exist
             if (userExist != null)
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new Response { Status = "Error", Message = "User Already  Exist" });
+                return StatusCode(StatusCodes.Status400BadRequest, GenarateResponse("Error", string.Format($"{registerDTO.EmployeeName} User Already  Exist")));
             }
             IdentityUser user = new()
             {
                 Email = registerDTO.Email,
                 PhoneNumber = registerDTO.Phone,
                 UserName = registerDTO.EmployeeName,
-               // TwoFactorEnabled = true
+                // TwoFactorEnabled = true
             };
             if (await _roleManager.RoleExistsAsync(role))
             {
@@ -65,7 +69,7 @@ namespace EmployeeAPI.Controllers
             }
             else
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "This Role Does not exist " });
+                return StatusCode(StatusCodes.Status400BadRequest, GenarateResponse("Error", string.Format($"{role}" + " " + "This Role Does not exist ")));
             }
         }
 
@@ -74,7 +78,7 @@ namespace EmployeeAPI.Controllers
             var result = await _userManager.CreateAsync(user, registerDTO.Password);
             if (!result.Succeeded)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User Failed to create,Please try again... " });
+                return StatusCode(StatusCodes.Status500InternalServerError, GenarateResponse("Error", $"{registerDTO.EmployeeName}" + " " + "User Failed to create, Please try again... "));
             }
             //Add role to the user...
             await _userManager.AddToRoleAsync(user, role);
@@ -83,7 +87,7 @@ namespace EmployeeAPI.Controllers
             var confirmationLink = $"{_configuration["Url:EmailConfirmationLink"]}{token}&email={user.Email}";
             var message = new MessageForEmail(new string[] { user.Email! }, "Confirmation email link", confirmationLink!);
             _emailService.SendEmailToVerify(message);
-            return StatusCode(StatusCodes.Status201Created, new Response { Status = "Success", Message = $"User Created & Email Sent to {user.Email}  Successfully " });
+            return StatusCode(StatusCodes.Status201Created, GenarateResponse("Success", string.Format($" {registerDTO.EmployeeName}" + " " + "User Created & Email Sent to" + " "+ $"{user.Email}"+" "+ $"Successfully")));
         }
 
 
@@ -97,39 +101,43 @@ namespace EmployeeAPI.Controllers
                 var result = await _userManager.ConfirmEmailAsync(user, tokens.ToString());
                 if (result.Succeeded)
                 {
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = "Email Verified Successfully " });
+
+                    return StatusCode(StatusCodes.Status200OK, GenarateResponse("Success", string.Format($"{user.UserName}" + " " + "Email Verified Successfully ")));
                 }
             }
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "This use does not exist ! " });
+            return StatusCode(StatusCodes.Status400BadRequest, GenarateResponse("Success", $"User does not exist"));
         }
 
         [HttpPost("LogIn")]
         public async Task<IActionResult> Login([FromBody] LogIn loginModel)
         {
             //checking the user ...
+
             var user = await _userManager.FindByNameAsync(loginModel.Username!);  //exception throw.
-            if (user == null )//check
+            if (user == null)//check
             {
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = $"Please enter correct username or password !" });
+                return StatusCode(StatusCodes.Status401Unauthorized, GenarateResponse("Error", string.Format($"{loginModel.Username} This User is not Valid Please enter correct UserName Password")));
             }
             await _signInManager.SignOutAsync();
             var pass = await _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
-            if (pass.RequiresTwoFactor == true&&user.TwoFactorEnabled)
+            if (pass.RequiresTwoFactor == true && user.TwoFactorEnabled)
             {
                 var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
                 var message = new MessageForEmail(new string[] { user.Email! }, "OTP Confirmation", token);
                 _emailService.SendEmailToVerify(message);
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"We have sent an OTP to your Email = {user.Email} " });
+
+                return StatusCode(StatusCodes.Status200OK, GenarateResponse("Success", string.Format($"We have sent an OTP to your Email = {user.Email} ")));
             }
 
             //checking the password
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password!))
             {
-
                 return this.LogInHepler(user).Result;
             }
-            return Unauthorized( StatusCode(StatusCodes.Status200OK, new Response { Status = "Error", Message = $"This User is not Authorized" }));
+            return StatusCode(StatusCodes.Status401Unauthorized, GenarateResponse("Error",string.Format( $"{loginModel.Username} This User is not Valid Please enter correct UserName Password")));
         }
+
+
 
         [HttpGet("LogIn-2FA")]
         public async Task<IActionResult> LoginWithOTP(string code, string username)
@@ -146,10 +154,9 @@ namespace EmployeeAPI.Controllers
                     }
 
                 }
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = $"Invalid code" });
-
+                return StatusCode(StatusCodes.Status404NotFound, GenarateResponse("Error", $"Invalid code"));
             }
-            return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = $"Invalid username or otp please try it again" });
+            return StatusCode(StatusCodes.Status400BadRequest, GenarateResponse("Error", $"Invalid username or otp please try it again"));
         }
 
         [AllowAnonymous]
@@ -163,9 +170,9 @@ namespace EmployeeAPI.Controllers
                 var forgotPasswordLink = $"{_configuration["Url:ForgotPasswordLink"]}{token}&email={user.Email}";
                 var message = new MessageForEmail(new string[] { user.Email! }, "Forgot Password link", forgotPasswordLink!);
                 _emailService.SendEmailToVerify(message);
-                return StatusCode(StatusCodes.Status200OK, new Response { Status = forgotPasswordLink, Message = $"Password change request is sent on Email {user.Email} Please Open your email  & click the link" });
+                return StatusCode(StatusCodes.Status200OK, GenarateResponse(forgotPasswordLink, string.Format( $"Password change request is sent on Email {user.Email} Please Open your email  & click the link")));
             }
-            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Cannot send email , please try again with proper email" });
+            return StatusCode(StatusCodes.Status500InternalServerError, GenarateResponse("Error", $"Cannot send email , please try again with proper email"));
         }
 
         [AllowAnonymous]
@@ -194,12 +201,11 @@ namespace EmployeeAPI.Controllers
                     {
                         ModelState.AddModelError(error.Code, error.Description);
                     }
-                    return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = $"Password has  been changed !" });
-
+                    return StatusCode(StatusCodes.Status200OK, GenarateResponse("Success", $"Password has been changed !"));
                 }
-                return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Password has not been changed , Please try once again" });
+                return StatusCode(StatusCodes.Status500InternalServerError, GenarateResponse("Error", $"Password has not been changed , Please try once again"));
             }
-            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = $"Couldnt Send link to email , Please try again" });
+            return StatusCode(StatusCodes.Status500InternalServerError, GenarateResponse("Error", $"User is not available in the resource , Please try again"));
         }
 
 
@@ -216,6 +222,25 @@ namespace EmployeeAPI.Controllers
                 );
             return token;
         }
+        private Response GenarateResponse(string status, string message)
+        {
+            Response res = new Response
+            {
+                Status = status,
+                Message = message
+            };
+            if (status == "Error")
+            {
+                Log.Error(res.Status + " " + " " + res.Message);
+            }
+            else
+            {
+                Log.Information(res.Status + " " + " " + res.Message);
+            }
+          
+            return res;
+        }
+
 
         private async Task<OkObjectResult> LogInHepler(IdentityUser user)
         {
@@ -235,13 +260,13 @@ namespace EmployeeAPI.Controllers
             //generate the token with the claims 
 
             var jwtToken = GetToken(authClaims);
-            Log.Information(string.Format($"User {user.UserName} Logged in Time{DateTime.Now}" + " " + $"With Expiration Time:{jwtToken.ValidTo}"));
+            Log.Information(string.Format($"User {user.UserName} Logged in Time ={DateTime.Now}" + " " + $"With Expiration Time:{jwtToken.ValidTo}"));
             // returning the token
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(jwtToken),
                 expration = jwtToken.ValidTo
-            }); 
+            });
         }
     }
 }

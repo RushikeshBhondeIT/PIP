@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Web.Http;
 using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using HttpPutAttribute = Microsoft.AspNetCore.Mvc.HttpPutAttribute;
+using Serilog;
 
 namespace EmployeeAPI.Controllers
 {
@@ -41,9 +42,12 @@ namespace EmployeeAPI.Controllers
             }
             catch (Exception ex)
             {
+                GenarateResponse("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
         }
+       
+
 
         [HttpGet("GetAllCountries")]
         public List<CountryResponse> GetAllCountries()
@@ -53,7 +57,7 @@ namespace EmployeeAPI.Controllers
                 var countries = _countriesService.GetAllCountries();
                 return countries;
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
 
@@ -66,7 +70,7 @@ namespace EmployeeAPI.Controllers
                 var employees = _employeeService.GetAllEmployee().ToList();
                 return employees;
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
 
         }
 
@@ -88,7 +92,7 @@ namespace EmployeeAPI.Controllers
                 EmployeeResponse employeeResponse = _employeeService.AddEmployee(employeeAddRequest);
                 return employeeResponse;
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
         [HttpPut("Edit")]
@@ -119,7 +123,7 @@ namespace EmployeeAPI.Controllers
                     return empResponse.ToEmployeeUpdateRequest();
                 }
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
 
@@ -136,7 +140,7 @@ namespace EmployeeAPI.Controllers
                 var result = _employeeService.DeleteEmployee(UpdateResult.EmployeeId);
                 return result;
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
         [HttpPost("GetFilteredEmployee")]
@@ -147,7 +151,7 @@ namespace EmployeeAPI.Controllers
                 List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
                 return employee;
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
 
         }
 
@@ -160,7 +164,25 @@ namespace EmployeeAPI.Controllers
                 List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(employee, sortBy, sortOrder);
                 return sortedPersons;
             }
-            catch (Exception ex) { throw new Exception(ex.Message); }
+            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+        }
+
+        private Response GenarateResponse(string status, string message)
+        {
+            Response res = new Response
+            {
+                Status = status,
+                Message = message
+            };
+            if (status == "Error")
+            {
+                Log.Error(res.Status + " " + " " + res.Message);
+            }
+            else
+            {
+                Log.Information(res.Status + " " + " " + res.Message);
+            }
+            return res;
         }
 
     }

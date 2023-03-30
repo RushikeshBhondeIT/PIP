@@ -3,6 +3,7 @@ using EmployeeAPI.Models;
 using LeapYearAPI.LeapYearRepository;
 using LeapYearAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System.Web.Http;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
@@ -28,6 +29,7 @@ namespace LeapYearAPI.Controllers
             }
             catch (Exception ex)
             {
+                LogError("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -48,6 +50,7 @@ namespace LeapYearAPI.Controllers
             }
             catch (Exception ex)
             {
+                LogError("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
         }
@@ -69,8 +72,28 @@ namespace LeapYearAPI.Controllers
             }
             catch (Exception ex)
             {
+                LogError("Error",ex.Message);
                 throw new Exception(ex.Message);
             }
+        }
+
+        private Response LogError(string status, string message)
+        {
+            Response res = new Response
+            {
+                Status = status,
+                Message = message
+            };
+            if (status == "Error")
+            {
+                Log.Error(res.Status + " " + " " + res.Message);
+               
+            }
+            else
+            {
+                Log.Information(res.Status + " " + " " + res.Message);
+            }
+            return res;
         }
     }
 }

@@ -15,10 +15,6 @@ namespace EmployeeServicesRepo
         private readonly ApplicationDbContext _db;
         private readonly ICountriesService _countries;
      
-        private ApplicationDbContext dbContext;
-        private ICountriesService? countriesService;
-   
-
         public EmployeesServices(ApplicationDbContext employeeDbContext, ICountriesService countriesService)
         {
             _db = employeeDbContext;
