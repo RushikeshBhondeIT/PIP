@@ -37,16 +37,16 @@ namespace EmployeeAPI.Controllers
         {
             try
             {
-                var country= _countriesService.AddCountry(countryAddRequest);
+                var country = _countriesService.AddCountry(countryAddRequest);
                 return country;
             }
             catch (Exception ex)
             {
-                GenarateResponse("Error", ex.Message);
+                LogInformation("Error", ex.Message);
                 throw new Exception(ex.Message);
             }
         }
-       
+
 
 
         [HttpGet("GetAllCountries")]
@@ -57,7 +57,7 @@ namespace EmployeeAPI.Controllers
                 var countries = _countriesService.GetAllCountries();
                 return countries;
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
 
@@ -70,7 +70,7 @@ namespace EmployeeAPI.Controllers
                 var employees = _employeeService.GetAllEmployee().ToList();
                 return employees;
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
 
         }
 
@@ -92,7 +92,7 @@ namespace EmployeeAPI.Controllers
                 EmployeeResponse employeeResponse = _employeeService.AddEmployee(employeeAddRequest);
                 return employeeResponse;
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
         [HttpPut("Edit")]
@@ -123,7 +123,7 @@ namespace EmployeeAPI.Controllers
                     return empResponse.ToEmployeeUpdateRequest();
                 }
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
 
@@ -135,12 +135,15 @@ namespace EmployeeAPI.Controllers
             {
                 EmployeeResponse? pemployeeResponse = _employeeService.GetEmployeeById(UpdateResult.EmployeeId);
                 if (pemployeeResponse == null)
+                {
+                    LogInformation("Error", "User you want to delete is not Found.");
                     return false;
-
+                }
                 var result = _employeeService.DeleteEmployee(UpdateResult.EmployeeId);
+                LogInformation("Error", "User is deleted.");
                 return result;
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
         [HttpPost("GetFilteredEmployee")]
@@ -151,7 +154,7 @@ namespace EmployeeAPI.Controllers
                 List<EmployeeResponse> employee = _employeeService.GetFilteredEmployee(searchBy, searchString);
                 return employee;
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
 
         }
 
@@ -164,10 +167,10 @@ namespace EmployeeAPI.Controllers
                 List<EmployeeResponse> sortedPersons = _employeeService.GetSoretedEmployee(employee, sortBy, sortOrder);
                 return sortedPersons;
             }
-            catch (Exception ex) { GenarateResponse("Error", ex.Message); throw new Exception(ex.Message); }
+            catch (Exception ex) { LogInformation("Error", ex.Message); throw new Exception(ex.Message); }
         }
 
-        private Response GenarateResponse(string status, string message)
+        private Response LogInformation(string status, string message)
         {
             Response res = new Response
             {

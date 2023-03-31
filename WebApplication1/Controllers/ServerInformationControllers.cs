@@ -36,7 +36,7 @@ namespace EmployeeAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, GenarateResponse("Error", $"{ex.Message}"));
+                return StatusCode(StatusCodes.Status500InternalServerError, LogInformation("Error", $"{ex.Message}"));
             }
         }
 
@@ -52,7 +52,7 @@ namespace EmployeeAPI.Controllers
             {
                 if(dateTime== null)
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, GenarateResponse("Error", $"Date is not provided"));
+                    return StatusCode(StatusCodes.Status400BadRequest, LogInformation("Error", $"Date is not provided"));
                 }
                 else
                 {
@@ -62,11 +62,11 @@ namespace EmployeeAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, GenarateResponse("Error", $"{ex.Message}"));
+                return StatusCode(StatusCodes.Status500InternalServerError, LogInformation("Error", $"{ex.Message}"));
             }
         }
 
-        private Response GenarateResponse(string status, string message)
+        private Response LogInformation(string status, string message)
         {
             Response res = new Response
             {
