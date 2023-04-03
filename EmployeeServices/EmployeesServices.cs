@@ -26,7 +26,7 @@ namespace EmployeeServicesRepo
         {
             try
             {
-                var servertime = (new { servertime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture) });
+              var  servertime = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
                 return servertime.ToString();
             }
             catch (Exception ex)

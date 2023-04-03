@@ -27,12 +27,15 @@ namespace EmployeeAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetServerTime")]
+        [AllowAnonymousAttribute]
         public IActionResult GetServerTime()
         {
             try
             {
-               var serverTime= _employeeService.GetServerTime();
-               return Ok(serverTime);
+                return StatusCode(StatusCodes.Status200OK, LogInformation("ServerTime", _employeeService.GetServerTime()));
+
+                //var serverTime = _employeeService.GetServerTime();
+                //return Ok(serverTime);
             }
             catch (Exception ex)
             {
