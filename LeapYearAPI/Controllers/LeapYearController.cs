@@ -5,6 +5,7 @@ using LeapYearAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System.Web.Http;
+using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
@@ -21,7 +22,7 @@ namespace LeapYearAPI.Controllers
         }
 
         [HttpPost("LogIn")]
-        public LoginResponseModel LogIn(LogInModel logIn)
+        public LoginResponseModel LogIn([FromBody] LogInModel logIn)
         {
             try
             {
@@ -41,8 +42,8 @@ namespace LeapYearAPI.Controllers
         /// <param name="startDate">Starting Date </param>
         /// <param name="endDate"> Ending Date</param>
         /// <returns></returns>
-        [HttpPost("LeapYears")]
-        public List<LeapYearResponse> GetLeapYears(LeapYearRange leapYearRange)
+        [HttpGet("LeapYears")]
+        public List<int> GetLeapYears(LeapYearRange leapYearRange)
         {
             try
             {

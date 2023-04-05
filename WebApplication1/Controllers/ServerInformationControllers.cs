@@ -59,8 +59,9 @@ namespace EmployeeAPI.Controllers
                 }
                 else
                 {
+                   var datetime= Convert.ToDateTime(dateTime);
                     var day = _employeeService.GetDay(dateTime);
-                    return Ok(new Response { Status = "Success", Message = $"Given Date Day Is {day}" });
+                    return Ok(new Response { Status = "Success", Message = $"{day}" });
                 }
             }
             catch (Exception ex)

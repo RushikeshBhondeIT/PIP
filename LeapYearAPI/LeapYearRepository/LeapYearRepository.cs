@@ -19,13 +19,14 @@ namespace LeapYearAPI.LeapYearRepository
 
         }
 
-        public List<LeapYearResponse> GetLeapYear(LeapYearRange leapYearRange)
+        public List<int> GetLeapYear(LeapYearRange leapYearRange)
         {
             try
             {
                 int startYear = leapYearRange.StartYear;
                 int endYear = leapYearRange.EndYear;
-                List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
+                //List<LeapYearResponse> yearsList = new List<LeapYearResponse>();
+                List<int > years = new List<int>();
                 if (leapYearRange.StartYear <= 0 || leapYearRange.EndYear <= 0 || leapYearRange == null)
                 {
                     LogInformation("Error", "Range is not valid , It should be greater than  Zero");
@@ -42,11 +43,11 @@ namespace LeapYearAPI.LeapYearRepository
                     {
                         if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
                         {
-                            yearsList.Add(new LeapYearResponse { LeapYear = year });
+                            years.Add(year);
                         }
                     }
                 }
-                return yearsList;
+                return years;
             }
             catch (Exception ex)
             {

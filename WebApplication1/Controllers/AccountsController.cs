@@ -132,12 +132,18 @@ namespace EmployeeAPI.Controllers
             //checking the password
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password!))
             {
-                return this.LogInHepler(user).Result;
+                if( user.EmailConfirmed == true)
+                {
+                    return this.LogInHepler(user).Result;
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Username} Please confirm your email !")));
+                }
             }
             else
             {
                 return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Username} Please Enter Correct Password !")));
-
             }
         }
 
