@@ -55,8 +55,8 @@ namespace EmployeeAPI.Unit.Testing
         public void GetLeapYear_TestGettingArgumentExceptionForZeroValues()
         {
             LeapYearRange range = new LeapYearRange() { StartYear = 0, EndYear = 0 };
-            List<LeapYearResponse> actual = new List<LeapYearResponse>();
-            List<LeapYearResponse> expected = new List<LeapYearResponse>();
+            List<int> actual = new List<int>();
+            List<int> expected = new List<int>();
 
             Assert.Throws<System.Exception>(() =>
             {
@@ -70,8 +70,8 @@ namespace EmployeeAPI.Unit.Testing
         public void GetLeapYear_TestGettingArgumentExceptionForMinusValues()
         {
             LeapYearRange range = new LeapYearRange() { StartYear = -20, EndYear = -30 };
-            List<LeapYearResponse> actual = new List<LeapYearResponse>();
-            List<LeapYearResponse> expected = new List<LeapYearResponse>();
+            List<int> actual = new List<int>();
+            List<int> expected = new List<int>();
 
             Assert.Throws<System.Exception>(() =>
             {
