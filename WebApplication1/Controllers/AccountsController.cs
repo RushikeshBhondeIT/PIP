@@ -73,6 +73,9 @@ namespace EmployeeAPI.Controllers
             }
         }
 
+
+
+
         private async Task<ObjectResult> RegisterUserMethod(IdentityUser user, RegisterUser registerDTO, string role)
         {
             var result = await _userManager.CreateAsync(user, registerDTO.Password);
@@ -113,10 +116,10 @@ namespace EmployeeAPI.Controllers
         {
             //checking the user ...
 
-            var user = await _userManager.FindByNameAsync(loginModel.Username!);  //exception throw.
+            var user = await _userManager.FindByEmailAsync(loginModel.Email!);  //exception throw.
             if (user == null)//check
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Username} This User is not Valid Please enter correct UserName Password")));
+                return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Email} This User account dosent exist , Please register yourself")));
             }
             await _signInManager.SignOutAsync();
             var pass = await _signInManager.PasswordSignInAsync(user, loginModel.Password, false, false);
@@ -138,12 +141,12 @@ namespace EmployeeAPI.Controllers
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Username} Please confirm your email !")));
+                    return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Email} Please confirm your email !")));
                 }
             }
             else
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Username} Please Enter Correct Password !")));
+                return StatusCode(StatusCodes.Status401Unauthorized, LogInformation("Error", string.Format($"{loginModel.Email} Please Enter Correct Password !")));
             }
         }
 
@@ -214,6 +217,19 @@ namespace EmployeeAPI.Controllers
                     return StatusCode(StatusCodes.Status200OK, LogInformation("Success", $"Password has been changed !"));
                 }
                 return StatusCode(StatusCodes.Status500InternalServerError, LogInformation("Error", $"Password has not been changed , Please try once again"));
+            }
+            return StatusCode(StatusCodes.Status500InternalServerError, LogInformation("Error", $"User is not available in the resource , Please try again"));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("UserDetail")]
+        public async Task<IActionResult> GetUserDetail(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                return StatusCode(StatusCodes.Status200OK, LogInformation("Success", $"{user}"));
+
             }
             return StatusCode(StatusCodes.Status500InternalServerError, LogInformation("Error", $"User is not available in the resource , Please try again"));
         }
