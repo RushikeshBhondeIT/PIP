@@ -1,5 +1,6 @@
 
 using LeapYearAPI.LeapYearRepository;
+using Microsoft.OpenApi.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,8 @@ builder.Host.UseSerilog((HostBuilderContext context, IServiceProvider services, 
 });
 
 
+builder.Services.AddSwaggerGen();
+
 // Add services to the container.
 builder.Services.AddScoped<ILeapYearRepository, LeapYearRepository>();
 builder.Services.AddControllers();
@@ -21,7 +24,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 

@@ -154,7 +154,7 @@ namespace LeapYearAPI.LeapYearRepository
                             model = JsonConvert.DeserializeObject<LoginResponseModel>(response);
                             _token = model.token!;
                         }
-                        LogInformation("Succes", $" {logIn.Username}  Logged In Time = {DateTime.Now}");
+                        LogInformation("Succes", $" {logIn.Email}  Logged In Time = {DateTime.Now}");
                         return model;
                         
                     }
